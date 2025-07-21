@@ -1,0 +1,68 @@
+version: "3.9"
+
+services:
+  influxdb:
+    image: influxdb:2.1.1
+    container_name: influxdb
+    ports:
+      - "8086:8086"
+    volumes:
+      - influxdb_data:/var/lib/influxdb2
+      - influxdb_config:/etc/influxdb2
+    restart: always
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=${INFLUXDB_ADMIN_USER:-admin}
+      - DOCKER_INFLUXDB_INIT_PASSWORD=${INFLUXDB_ADMIN_PASSWORD:-admin123}
+      - DOCKER_INFLUXDB_INIT_ORG=${INFLUXDB_ORG:-default-org}
+      - DOCKER_INFLUXDB_INIT_BUCKET=${INFLUXDB_BUCKET:-default-bucket}
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${INFLUXDB_TOKEN:-changeme-token}
+      - DOCKER_INFLUXDB_INIT_RETENTION=4d
+
+  backend:
+    build:
+      context: .
+      dockerfile: mait-backend/Dockerfile
+    command: uvicorn main:app --host 0.0.0.0 --port 8001
+    ports:
+      - "8001:8001"
+    volumes:
+      - shared_logs:/app/logs
+    environment:
+      - INFLUXDB_URL=http://influxdb:8086
+      - INFLUXDB_TOKEN=${INFLUXDB_TOKEN:-changeme-token}
+      - INFLUXDB_ORG=${INFLUXDB_ORG:-default-org}
+      - INFLUXDB_BUCKET=${INFLUXDB_BUCKET:-default-bucket}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    depends_on:
+      - influxdb
+
+  frontend:
+    build:
+      context: ./mait-front
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"
+    environment:
+      - REACT_APP_API_URL=${REACT_APP_API_URL}
+    depends_on:
+      - backend
+
+  modbus-poller:
+    build:
+      context: .
+      dockerfile: Dockerfile.poller
+    volumes:
+      - ./generator_config.yaml:/app/generator_config.yaml
+      - shared_logs:/app/logs
+    environment:
+      - INFLUXDB_URL=http://influxdb:8086
+      - INFLUXDB_TOKEN=${INFLUXDB_TOKEN:-changeme-token}
+      - INFLUXDB_ORG=${INFLUXDB_ORG:-default-org}
+      - INFLUXDB_BUCKET=${INFLUXDB_BUCKET:-default-bucket}
+    depends_on:
+      - influxdb
+
+volumes:
+  influxdb_data:
+  influxdb_config:
+  shared_logs:

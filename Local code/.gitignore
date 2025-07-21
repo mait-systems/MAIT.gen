@@ -1,0 +1,20 @@
+# Python artifacts
+venv/
+env/
+__pycache__/
+*.pyc
+
+# Node artifacts
+node_modules/
+
+# Logs
+*.log
+
+# Environment files
+.env
+
+# Docker volumes (optional if you mount local folders)
+volumes/
+
+# Editor/OS junk
+.DS_Store

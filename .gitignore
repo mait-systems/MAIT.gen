@@ -1,0 +1,74 @@
+# Logs
+*.log
+generator_output.log
+stbd_gen_output.log
+
+# Environment variables and secrets
+.env
+.env.local
+.env.production
+.env.development
+
+# Personal configuration files with real secrets
+# (Keep template files, ignore files with real credentials)
+**/generator_config.yaml
+!**/generator_config.yaml.example
+
+# Node modules
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Docker
+.dockerignore
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
