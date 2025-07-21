@@ -88,11 +88,15 @@ influxdb:
   bucket: "your-bucket-name"       # Your data bucket name
 ```
 
-Edit `.env` (if using OpenAI features):
-```bash
-OPENAI_API_KEY=your-openai-api-key-here
-INFLUXDB_TOKEN=your-influxdb-token-here
-# ... other configuration
+Edit `generator_config.yaml` with your real credentials:
+```yaml
+influxdb:
+  token: "your-influxdb-token-here"
+  org: "your-organization"
+  bucket: "generator-metrics"
+  
+openai:
+  api_key: "your-openai-api-key-here"
 ```
 
 ### 4. Deploy
@@ -162,11 +166,13 @@ The `generator_config.yaml` file contains:
 - **Event mappings**: Alarm and event code definitions
 - **Logging settings**: Log levels and file locations
 
-### Environment Variables
-The `.env` file contains:
-- **OpenAI API Key**: For AI-powered analytics
-- **InfluxDB credentials**: Database authentication
-- **Network settings**: For multi-device access
+### Configuration Management
+All configuration is managed through `generator_config.yaml`:
+- **Connection settings**: Modbus gateway IP and connection parameters
+- **InfluxDB credentials**: Database URL, token, organization, and bucket
+- **OpenAI API Key**: For AI-powered analytics and reports
+- **Logging settings**: Log levels, file locations, and formatting
+- **Register mappings**: Generator-specific Modbus register definitions
 
 ## 📊 Dashboard Features
 
@@ -226,10 +232,10 @@ MAIT/
 ## 🔒 Security
 
 ### Secrets Management
-- Real credentials stored in local `.env` and `generator_config.yaml`
-- Template files provided for deployment
-- `.gitignore` protects sensitive information
-- Separate configuration for development vs production
+- All credentials stored in `generator_config.yaml` files
+- Template `.example` files provided for deployment
+- `.gitignore` protects sensitive YAML files from being committed
+- Single configuration source per environment for consistency
 
 ### Network Security
 - CORS configured for legitimate access
