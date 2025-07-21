@@ -13,8 +13,6 @@ from fastapi import Query
 import yaml
 
 
-load_dotenv()
-
 app = FastAPI()
 
 # Allow your React app to talk to FastAPI
@@ -26,12 +24,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Load secrets
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-INFLUXDB_URL = os.getenv("INFLUXDB_URL")
-INFLUXDB_TOKEN = os.getenv("INFLUXDB_TOKEN")
-INFLUXDB_ORG = os.getenv("INFLUXDB_ORG")
-INFLUXDB_BUCKET = os.getenv("INFLUXDB_BUCKET")
+def load_config(config_file='generator_config.yaml'):
+    with open(config_file, 'r') as f:
+        return yaml.safe_load(f)
+
+config = load_config()
+
+# Load configuration from YAML
+influxdb_config = config.get('influxdb', {})
+openai_config = config.get('openai', {})
+
+OPENAI_API_KEY = openai_config.get('api_key', '')
+INFLUXDB_URL = influxdb_config.get('url', 'http://localhost:8086')
+INFLUXDB_TOKEN = influxdb_config.get('token', '')
+INFLUXDB_ORG = influxdb_config.get('org', 'mlr')
+INFLUXDB_BUCKET = influxdb_config.get('bucket', 'generator-metrics')
 
 # Initialize clients
 openai = OpenAI(api_key=OPENAI_API_KEY)
@@ -40,13 +47,6 @@ influx_client = InfluxDBClient(
     token=INFLUXDB_TOKEN,
     org=INFLUXDB_ORG,
     timeout=60_000)
-
-
-def load_config(config_file='generator_config.yaml'):
-    with open(config_file, 'r') as f:
-        return yaml.safe_load(f)
-
-config = load_config()
     
 @app.get("/api/live-stats")
 async def get_live_stats():
