@@ -1,0 +1,333 @@
+# MAIT - Marine Generator Monitoring System
+
+A comprehensive Docker-based monitoring system for marine generators using Modbus TCP communication, real-time data visualization, and AI-powered analytics.
+
+## 🚀 Features
+
+- **Real-time Monitoring**: Live dashboard with generator metrics and status
+- **Modbus TCP Integration**: Connects to generator controllers via Modbus gateways
+- **Time-series Data Storage**: InfluxDB for efficient data storage and querying
+- **Interactive Dashboard**: React-based frontend with real-time updates
+- **AI-Powered Analytics**: OpenAI integration for intelligent health analysis
+- **Docker Deployment**: Complete containerized solution for easy deployment
+- **Event Monitoring**: Real-time alerts and event tracking
+- **Network Access**: Accessible from multiple devices on the same network
+
+## 🏗️ System Architecture
+
+```
+┌─────────────────┐    ┌──────────────┐    ┌─────────────┐    ┌──────────────┐
+│  Generator      │────│ Modbus TCP   │────│ Modbus      │────│ Docker       │
+│  Controller     │    │ Gateway      │    │ Poller      │    │ Stack        │
+│  (RS485)        │    │ (NPort)      │    │ (Python)    │    │              │
+└─────────────────┘    └──────────────┘    └─────────────┘    └──────────────┘
+                                                   │
+                                           ┌───────▼───────┐
+                                           │   InfluxDB    │
+                                           │  (Database)   │
+                                           └───────────────┘
+                                                   │
+                                           ┌───────▼───────┐
+                                           │   FastAPI     │
+                                           │  (Backend)    │
+                                           └───────────────┘
+                                                   │
+                                           ┌───────▼───────┐
+                                           │    React      │
+                                           │  (Frontend)   │
+                                           └───────────────┘
+```
+
+## 📋 Requirements
+
+### Hardware
+- Generator with Modbus RTU interface
+- Modbus TCP gateway (e.g., Moxa NPort)
+- Computer/server running Docker
+
+### Software
+- Docker and Docker Compose
+- Git (for cloning repository)
+
+## 🚀 Quick Start
+
+### 1. Clone Repository
+```bash
+git clone https://github.com/chengmlr/MAIT.git
+cd MAIT
+```
+
+### 2. Choose Your Setup
+
+#### Option A: Docker Deployment (Recommended)
+```bash
+cd docker_deployment
+cp .env.example .env
+cp generator_config.yaml.example generator_config.yaml
+```
+
+#### Option B: Local Development
+```bash
+cd "Local code"
+cp .env.example .env
+cp generator_config.yaml.example generator_config.yaml
+```
+
+### 3. Configure Your System
+
+Edit `generator_config.yaml`:
+```yaml
+connection:
+  host: "YOUR_MODBUS_GATEWAY_IP"  # Replace with your gateway IP
+  port: 502
+  unit_id: 1
+
+influxdb:
+  token: "YOUR_INFLUXDB_TOKEN"    # Generate a secure token
+  org: "your-organization"         # Your organization name
+  bucket: "your-bucket-name"       # Your data bucket name
+```
+
+Edit `.env` (if using OpenAI features):
+```bash
+OPENAI_API_KEY=your-openai-api-key-here
+INFLUXDB_TOKEN=your-influxdb-token-here
+# ... other configuration
+```
+
+### 4. Deploy
+
+#### Docker Deployment:
+```bash
+cd docker_deployment
+./deploy.sh  # Automated deployment script
+# OR manually:
+docker-compose up --build -d
+```
+
+#### Local Development:
+```bash
+# Start InfluxDB
+docker run -d -p 8086:8086 influxdb:2.1.1
+
+# Start backend
+cd "Local code/mait-backend"
+pip install -r requirements.txt
+uvicorn main:app --host 0.0.0.0 --port 8001
+
+# Start frontend
+cd "../mait-front"
+npm install
+npm start
+
+# Start modbus poller
+cd ".."
+python gen_modbus_tcp.py
+```
+
+### 5. Access Your Dashboard
+
+- **Local Access**: http://localhost:3000
+- **Network Access**: http://YOUR_SERVER_IP:3000
+- **InfluxDB UI**: http://localhost:8086
+- **Backend API**: http://localhost:8001
+
+## 📱 Network Access Setup
+
+To access from other devices on your network:
+
+1. **Find your server IP**:
+   ```bash
+   hostname -I  # Linux/Mac
+   ipconfig     # Windows
+   ```
+
+2. **Update environment** (if needed):
+   ```bash
+   # In .env file
+   REACT_APP_API_URL=http://YOUR_SERVER_IP:3000
+   ```
+
+3. **Access from any device**:
+   - Dashboard: `http://YOUR_SERVER_IP:3000`
+   - From phones, tablets, other computers on same network
+
+## 🔧 Configuration
+
+### Generator Configuration
+The `generator_config.yaml` file contains:
+- **Connection settings**: Modbus gateway IP, port, unit ID
+- **InfluxDB settings**: Database connection and credentials
+- **Register mappings**: Generator-specific register definitions
+- **Event mappings**: Alarm and event code definitions
+- **Logging settings**: Log levels and file locations
+
+### Environment Variables
+The `.env` file contains:
+- **OpenAI API Key**: For AI-powered analytics
+- **InfluxDB credentials**: Database authentication
+- **Network settings**: For multi-device access
+
+## 📊 Dashboard Features
+
+### Real-time Monitoring
+- **Engine Status**: Speed, temperature, oil pressure
+- **Electrical Metrics**: Voltage, current, power output
+- **Fuel System**: Pressure, temperature, consumption rate
+- **Environmental**: Intake air temperature and pressure
+
+### Historical Data
+- **Trends Tab**: Historical data visualization
+- **Reports Tab**: AI-generated daily reports and analysis
+- **Maintenance Tab**: Runtime hours and maintenance tracking
+
+### Live Console
+- **Console Tab**: Real-time modbus poller logs
+- **Connection Status**: Live connection monitoring
+- **Error Messages**: Clear diagnostic information
+
+## 🛠️ Development
+
+### Project Structure
+```
+MAIT/
+├── Local code/              # Development environment
+│   ├── gen_modbus_tcp.py   # Modbus polling script
+│   ├── generator_config.yaml # Configuration file
+│   ├── mait-backend/       # FastAPI backend
+│   └── mait-front/         # React frontend
+├── docker_deployment/      # Production deployment
+│   ├── docker-compose.yml  # Container orchestration
+│   ├── deploy.sh           # Automated deployment
+│   └── ... (same structure as Local code)
+└── PROJECT_MEMORY.md       # Detailed technical documentation
+```
+
+### Key Components
+
+1. **Modbus Poller** (`gen_modbus_tcp.py`):
+   - Connects to generator via Modbus TCP
+   - Infinite retry with exponential backoff
+   - Text-only logging for compatibility
+   - Automatic anomaly detection and correction
+
+2. **Backend** (`mait-backend/main.py`):
+   - FastAPI REST API
+   - InfluxDB integration
+   - OpenAI GPT-4 analytics
+   - Real-time log streaming
+
+3. **Frontend** (`mait-front/src/`):
+   - React dashboard with emoji UI
+   - Real-time data updates
+   - Multiple monitoring tabs
+   - Network-accessible design
+
+## 🔒 Security
+
+### Secrets Management
+- Real credentials stored in local `.env` and `generator_config.yaml`
+- Template files provided for deployment
+- `.gitignore` protects sensitive information
+- Separate configuration for development vs production
+
+### Network Security
+- CORS configured for legitimate access
+- Environment-based API URL configuration
+- No hardcoded credentials in source code
+
+## 🐳 Docker Details
+
+### Services
+- **InfluxDB**: Time-series database (port 8086)
+- **Backend**: FastAPI server (port 8001)
+- **Frontend**: React app via Nginx (port 3000)
+- **Modbus Poller**: Background polling service
+
+### Volumes
+- **Shared Logs**: Container log sharing for console tab
+- **InfluxDB Data**: Persistent database storage
+- **Configuration**: Mounted config files
+
+## 🔍 Troubleshooting
+
+### Common Issues
+
+1. **Connection Failures**:
+   ```
+   [FAILED] Failed to connect to Modbus gateway
+   ```
+   - Check generator_config.yaml host IP
+   - Verify network connectivity
+   - Confirm Modbus gateway is operational
+
+2. **Empty Console Tab**:
+   - Check backend logs: `docker-compose logs backend`
+   - Verify shared volume configuration
+   - Ensure poller is running: `docker-compose logs modbus-poller`
+
+3. **Permission Errors**:
+   ```bash
+   # Fix file permissions
+   chmod +x deploy.sh
+   ```
+
+4. **Port Conflicts**:
+   ```bash
+   # Check what's using ports
+   netstat -tulpn | grep :3000
+   netstat -tulpn | grep :8001
+   netstat -tulpn | grep :8086
+   ```
+
+### Debugging Commands
+
+```bash
+# Check container status
+docker-compose ps
+
+# View logs
+docker-compose logs -f
+
+# Individual service logs
+docker-compose logs backend
+docker-compose logs modbus-poller
+docker-compose logs frontend
+
+# Restart services
+docker-compose restart
+
+# Rebuild from scratch
+docker-compose down
+docker-compose up --build -d
+```
+
+## 📚 Additional Resources
+
+- **Technical Documentation**: See `PROJECT_MEMORY.md`
+- **Legacy Version**: Available on `legacy-version` branch
+- **Configuration Examples**: Check `.example` files
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test with your generator setup
+5. Submit a pull request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🆘 Support
+
+For issues and questions:
+1. Check the troubleshooting section above
+2. Review `PROJECT_MEMORY.md` for detailed technical info
+3. Open an issue on GitHub
+4. Include logs and configuration details (without secrets)
+
+---
+
+**Note**: This system is designed for marine generators with Modbus RTU interfaces. Ensure your generator and network setup match the requirements before deployment.
