@@ -9,7 +9,7 @@ function MaintenanceTab() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get(`${process.env.REACT_APP_API_BASE}/api/live-stats`);
+        const res = await axios.get(`${process.env.REACT_APP_API_URL || ''}/api/live-stats`);
         setData(res.data);
       } catch (e) {
         console.error('Error fetching maintenance data', e);

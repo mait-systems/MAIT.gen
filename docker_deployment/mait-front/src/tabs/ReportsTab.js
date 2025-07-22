@@ -13,7 +13,7 @@ function ReportsTab() {
     setLoading(true);
     setError('');
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_BASE}/api/generate-daily-report`);
+      const response = await axios.get(`${process.env.REACT_APP_API_URL || ''}/api/generate-daily-report`);
       setReport(response.data.report);
     } catch (err) {
       console.error(err);
@@ -26,7 +26,7 @@ function ReportsTab() {
     setAnalyzing(true);
     setError('');
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_BASE}/api/live-analysis`);
+      const response = await axios.get(`${process.env.REACT_APP_API_URL || ''}/api/live-analysis`);
       setLiveAnalysis(response.data.analysis);
     } catch (err) {
       console.error(err);

@@ -9,7 +9,7 @@ const LoadIndicator = () => {
 
   const fetchLoadData = async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_BASE}/api/live-stats`);
+      const response = await axios.get(`${process.env.REACT_APP_API_URL || ''}/api/live-stats`);
 
       const rawEngineRPM = response.data['Engine_Speed'];
       const rawLoad = response.data['Generator_Apparent_Power'];

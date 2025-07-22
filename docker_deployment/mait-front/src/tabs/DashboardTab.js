@@ -9,7 +9,7 @@ function DashboardTab() {
   useEffect(() => {
     const fetchLiveData = async () => {
       try {
-        const res = await axios.get(`${process.env.REACT_APP_API_BASE}/api/live-stats`);
+        const res = await axios.get(`${process.env.REACT_APP_API_URL || ''}/api/live-stats`);
         setData(res.data);
       } catch (err) {
         console.error('Failed to fetch live data:', err);
@@ -18,7 +18,7 @@ function DashboardTab() {
 
     const fetchEvents = async () => {
       try {
-        const res = await axios.get(`${process.env.REACT_APP_API_BASE}/api/active-events`);
+        const res = await axios.get(`${process.env.REACT_APP_API_URL || ''}/api/active-events`);
         setEvents(res.data.events || []);
       } catch (err) {
         console.error('Failed to fetch active events:', err);

@@ -9,7 +9,7 @@ function EngineTab() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get('http://127.0.0.1:8001/api/live-stats');
+        const res = await axios.get('/api/live-stats');
         setData(res.data);
       } catch (e) {
         console.error('Error fetching engine data', e);

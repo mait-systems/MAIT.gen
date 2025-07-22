@@ -6,7 +6,9 @@
       "Bash(docker-compose:*)",
       "Bash(curl:*)",
       "Bash(docker logs:*)",
-      "Bash(cp:*)"
+      "Bash(cp:*)",
+      "Bash(ls:*)",
+      "Bash(diff:*)"
     ],
     "deny": []
   }

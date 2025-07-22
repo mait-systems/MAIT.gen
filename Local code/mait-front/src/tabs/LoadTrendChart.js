@@ -68,7 +68,7 @@ function LoadTrendChart({ chartId, onRemove }) {
 
   const fetchData = async (field, hours) => {
     try {
-      const res = await axios.get(`${process.env.REACT_APP_API_BASE}/api/trend?field=${field}&hours=${hours}`);
+      const res = await axios.get(`${process.env.REACT_APP_API_URL || ''}/api/trend?field=${field}&hours=${hours}`);
       const transformed = res.data.map(d => ({ ...d, value: d._value }));
       setData(transformed);
     } catch (err) {
