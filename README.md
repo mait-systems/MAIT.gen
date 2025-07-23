@@ -1,7 +1,7 @@
 # MAIT - Modular Analytics & Intelligence Toolkit
-## Marine Generator Monitoring System
+## Generator Monitoring System, Community Edition
 
-A comprehensive Docker-based monitoring system for marine generators using Modbus TCP communication, real-time data visualization, and AI-powered analytics.
+A comprehensive monitoring system for DecisionMaker3500 equipped generators using Modbus TCP communication, real-time data visualization, and AI-powered analytics.
 
 ## 🚀 Features
 
@@ -9,7 +9,7 @@ A comprehensive Docker-based monitoring system for marine generators using Modbu
 - **Modbus TCP Integration**: Connects to generator controllers via Modbus gateways
 - **Time-series Data Storage**: InfluxDB for efficient data storage and querying
 - **Interactive Dashboard**: React-based frontend with real-time updates
-- **AI-Powered Analytics**: OpenAI integration for intelligent health analysis
+- **AI-Powered Analytics**: AI integration for data analysis
 - **Docker Deployment**: Complete containerized solution for easy deployment
 - **Event Monitoring**: Real-time alerts and event tracking
 - **Network Access**: Accessible from multiple devices on the same network
@@ -41,8 +41,8 @@ A comprehensive Docker-based monitoring system for marine generators using Modbu
 
 ## 📋 Requirements
 
-### Hardware
-- Generator with Modbus RTU interface
+### Hardware (Community Edition)
+- Generator with DecisionMaker3500  & Modbus RTU interface
 - Modbus TCP gateway (e.g., Moxa NPort)
 - Computer/server running Docker
 
@@ -198,7 +198,6 @@ MAIT.gen/
 ### Secrets Management
 - All credentials stored in `generator_config.yaml` files
 - Template `.example` files provided for deployment
-- `.gitignore` protects sensitive YAML files from being committed
 - Single configuration source per environment for consistency
 
 ### Network Security
@@ -233,16 +232,9 @@ MAIT.gen/
 
 2. **Empty Console Tab**:
    - Check backend logs: `docker-compose logs backend`
-   - Verify shared volume configuration
    - Ensure poller is running: `docker-compose logs modbus-poller`
 
-3. **Permission Errors**:
-   ```bash
-   # Fix file permissions
-   chmod +x deploy.sh
-   ```
-
-4. **Port Conflicts**:
+3. **Port Conflicts**:
    ```bash
    # Check what's using ports
    netstat -tulpn | grep :3000
@@ -275,7 +267,7 @@ docker-compose up --build -d
 ## 📚 Documentation
 
 ### Quick Start Guide
-This README provides a streamlined Docker deployment process for getting MAIT running quickly.
+This README provides a streamlined Docker deployment process for getting MAIT.gen running quickly.
 
 ### Professional Installation Guide
 For comprehensive hardware setup, detailed configuration, troubleshooting, and professional installations:
@@ -288,11 +280,6 @@ Includes:
 - Network configuration and security
 - Comprehensive troubleshooting guide
 - Development environment setup
-- Future enhancement roadmap
-
-### Additional Resources
-- **Technical Documentation**: See `PROJECT_MEMORY.md`
-- **Configuration Examples**: Check `.example` files in repository root
 
 ## 🤝 Contributing
 
@@ -313,10 +300,9 @@ For commercial use or licensing inquiries, contact: yariksychov@pm.me
 For issues and questions:
 1. **Quick Issues**: Check the troubleshooting section above
 2. **Hardware Setup**: See the [Professional Documentation](./MAIT_Professional_Documentation.md)
-3. **Technical Details**: Review `PROJECT_MEMORY.md` for detailed technical info
 4. **GitHub Issues**: Open an issue with logs and configuration details (without secrets)
 5. **Professional Support**: Contact yariksychov@pm.me for installation assistance
 
 ---
 
-**Note**: This system is designed for marine generators with Modbus RTU interfaces. Ensure your generator and network setup match the requirements before deployment.
+**Note**: This system is designed for generators equipped with DecisionMaker3500 with Modbus RTU interfaces. Ensure your generator and network setup match the requirements before deployment.

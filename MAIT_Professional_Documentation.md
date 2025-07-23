@@ -13,8 +13,7 @@
 6. [Configuration](#configuration)
 7. [Operation](#operation)
 8. [Troubleshooting](#troubleshooting)
-9. [Development Notes](#development-notes)
-10. [Future Enhancements](#future-enhancements)
+9. [Support and Contact](#support)
 
 ---
 
@@ -278,7 +277,13 @@ influxdb:
   org: "your-organization"
   bucket: "generator-metrics"
 ```
-
+```yaml
+influxdb:
+  url: "http://influxdb:8086"
+  token: "[your-influxdb-token]"
+  org: "your-organization"
+  bucket: "generator-metrics"
+```
 #### OpenAI Integration (Optional)
 ```yaml
 openai:
@@ -334,11 +339,43 @@ For remote access from other devices:
 2. **Access from network**:
    - Dashboard: `http://[PI-IP]:3000`
    - API: `http://[PI-IP]:8001`
+   /api/live-stats
+   /api/active-events
+   /api/live-analysis
+   /api/trend
+   /api/load-trend
+   /api/logs
+   /api/generate-daily-report
 
-### 4. System Monitoring
+### 4. Useful Docker Commands
 ```bash
-# Check service status
+# Look up images
+docker images
+
+# Remove an image
+docker rmi image_id (rmi -f for forced deletion)
+
+# Check active containers
+docker container ps
 docker-compose ps
+
+# Stop a container
+docker stop container_id
+
+# Stop all and delete all containers
+docker rm -f $(docker ps -aq)
+
+# Delete all the images and volumes
+docker rmi -f $(docker images -aq)
+
+# Prune, delete junk
+docker system prune -af
+
+# Restart specific service
+docker-compose restart backend
+
+# Full system restart
+docker-compose down && docker-compose up -d
 
 # View logs
 docker-compose logs -f
@@ -348,19 +385,12 @@ docker-compose logs modbus-poller
 docker-compose logs backend
 docker-compose logs frontend
 ```
-### Diagnostic Commands
-```bash
-# System health check
-docker-compose ps
-docker system df
-docker system prune -f
 
 # Performance monitoring
 docker stats
 free -h
 df -h
-```
----
+
 
 ## 🔍 Troubleshooting
 
@@ -377,9 +407,6 @@ ping 192.168.127.254
 # Verify Ethernet configuration
 ip addr show eth0
 
-# Check Moxa gateway settings
-curl -I http://192.168.127.254
-```
 
 #### 2. Container Issues
 **High Memory Usage**:
@@ -388,17 +415,10 @@ curl -I http://192.168.127.254
 htop
 
 # Remove problematic processes
-sudo apt remove orca  # If consuming excessive RAM
+sudo apt remove orca  # If consuming excessive RAM, observed on Pi5
 ```
 
-**Container Restart**:
-```bash
-# Restart specific service
-docker-compose restart backend
 
-# Full system restart
-docker-compose down && docker-compose up -d
-```
 
 #### 3. InfluxDB Storage Issues
 **Corrupted Shards**:
