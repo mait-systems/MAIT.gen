@@ -13,11 +13,8 @@ function Footer() {
       fontSize: '0.85em',
       lineHeight: '1.4'
     }}>
-      <div style={{ marginBottom: '5px' }}>
-        Built with modern technologies for reliable generator monitoring
-      </div>
       <div>
-        Copyright © 2025 Yarik Sychov. All rights reserved.
+        MAIT v2.1.0 | Copyright © 2025 Yarik Sychov. All rights reserved.
       </div>
     </div>
   );

@@ -72,7 +72,6 @@ function ConsoleTab() {
             <div><strong>Version:</strong> 2.1.0</div>
             <div><strong>Build Date:</strong> 2025-07-23</div>
             <div><strong>Architecture:</strong> Docker Microservices</div>
-            <div><strong>Database:</strong> InfluxDB Time-Series</div>
             <div><strong>Protocol:</strong> Modbus TCP</div>
           </div>
         </div>
@@ -97,8 +96,15 @@ function ConsoleTab() {
                 yariksychov@pm.me
               </a>
             </div>
-            <div><strong>Support:</strong> Professional Installation & Maintenance</div>
-            <div><strong>Response Time:</strong> 24-48 hours</div>
+            <div><strong>GitHub:</strong> 
+              <a href="https://github.com/chengmlr/MAIT" style={{ 
+                color: '#007bff', 
+                textDecoration: 'none',
+                marginLeft: '8px'
+              }}>
+                github.com/chengmlr/MAIT
+              </a>
+            </div>
           </div>
         </div>
       </div>

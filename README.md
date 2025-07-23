@@ -1,4 +1,5 @@
-# MAIT - Marine Generator Monitoring System
+# MAIT - Modular Analytics & Intelligence Toolkit
+## Marine Generator Monitoring System
 
 A comprehensive Docker-based monitoring system for marine generators using Modbus TCP communication, real-time data visualization, and AI-powered analytics.
 

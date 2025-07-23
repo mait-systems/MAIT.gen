@@ -1,7 +1,7 @@
-# Generator Monitoring System - Project Memory
+# MAIT - Modular Analytics & Intelligence Toolkit - Project Memory
 
 ## Project Overview
-A comprehensive generator monitoring system built with a microservices architecture using Docker containers. The system monitors generator health metrics via Modbus TCP, stores data in InfluxDB, and provides real-time visualization through a React-based web interface.
+A comprehensive generator monitoring system built with a microservices architecture using Docker containers. MAIT (Modular Analytics & Intelligence Toolkit) monitors generator health metrics via Modbus TCP, stores data in InfluxDB, and provides real-time visualization through a React-based web interface.
 
 ## System Architecture
 

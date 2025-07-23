@@ -1,5 +1,5 @@
-# MAIT v1.0 - Marine Generator Monitoring System
-## Professional Installation & Operation Guide
+# MAIT v1.0 - Modular Analytics & Intelligence Toolkit
+## Marine Generator Monitoring System - Professional Installation & Operation Guide
 
 ---
 
@@ -20,7 +20,7 @@
 
 ## 🛠 System Overview
 
-MAIT (Marine Asset Intelligence Tool) is a comprehensive monitoring solution for marine generators that provides real-time data collection, analysis, and AI-powered insights. The system combines hardware and software components to deliver professional-grade monitoring capabilities.
+MAIT (Modular Analytics & Intelligence Toolkit) is a comprehensive monitoring solution for marine generators that provides real-time data collection, analysis, and AI-powered insights. The system combines hardware and software components to deliver professional-grade monitoring capabilities.
 
 ### Key Features
 - **Real-time Data Collection**: Continuous monitoring via Modbus TCP
