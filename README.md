@@ -277,11 +277,27 @@ docker-compose down
 docker-compose up --build -d
 ```
 
-## 📚 Additional Resources
+## 📚 Documentation
 
+### Quick Start Guide
+This README provides a streamlined Docker deployment process for getting MAIT running quickly.
+
+### Professional Installation Guide
+For comprehensive hardware setup, detailed configuration, troubleshooting, and professional installations:
+
+📖 **[MAIT Professional Documentation](./MAIT_Professional_Documentation.md)**
+
+Includes:
+- Complete hardware setup (Raspberry Pi, Moxa Gateway, wiring)
+- Step-by-step software installation
+- Network configuration and security
+- Comprehensive troubleshooting guide
+- Development environment setup
+- Future enhancement roadmap
+
+### Additional Resources
 - **Technical Documentation**: See `PROJECT_MEMORY.md`
-- **Legacy Version**: Available on `legacy-version` branch
-- **Configuration Examples**: Check `.example` files
+- **Configuration Examples**: Check `.example` files in `docker_deployment/`
 
 ## 🤝 Contributing
 
@@ -300,10 +316,11 @@ For commercial use or licensing inquiries, contact: yariksychov@pm.me
 ## 🆘 Support
 
 For issues and questions:
-1. Check the troubleshooting section above
-2. Review `PROJECT_MEMORY.md` for detailed technical info
-3. Open an issue on GitHub
-4. Include logs and configuration details (without secrets)
+1. **Quick Issues**: Check the troubleshooting section above
+2. **Hardware Setup**: See the [Professional Documentation](./MAIT_Professional_Documentation.md)
+3. **Technical Details**: Review `PROJECT_MEMORY.md` for detailed technical info
+4. **GitHub Issues**: Open an issue with logs and configuration details (without secrets)
+5. **Professional Support**: Contact yariksychov@pm.me for installation assistance
 
 ---
 
