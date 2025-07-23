@@ -8,7 +8,9 @@
       "Bash(docker logs:*)",
       "Bash(cp:*)",
       "Bash(ls:*)",
-      "Bash(diff:*)"
+      "Bash(diff:*)",
+      "Bash(git add:*)",
+      "Bash(docker compose build:*)"
     ],
     "deny": []
   }

@@ -227,8 +227,8 @@ docker run -d -p 8000:8000 -p 9443:9443 \
 #### Clone Repository
 ```bash
 cd ~
-git clone https://github.com/chengmlr/MAIT.git
-cd MAIT/docker_deployment
+git clone https://github.com/mait-systems/MAIT.gen.git
+cd MAIT.gen/docker_deployment
 ```
 
 #### Configure Environment
@@ -303,7 +303,7 @@ openai:
 
 ### 1. System Startup
 ```bash
-cd ~/MAIT/docker_deployment
+cd ~/MAIT.gen/docker_deployment
 docker-compose up -d
 ```
 

@@ -54,8 +54,8 @@ A comprehensive Docker-based monitoring system for marine generators using Modbu
 
 ### 1. Clone Repository
 ```bash
-git clone https://github.com/chengmlr/MAIT.git
-cd MAIT
+git clone https://github.com/mait-systems/MAIT.gen.git
+cd MAIT.gen
 ```
 
 ### 2. Configure Your Deployment

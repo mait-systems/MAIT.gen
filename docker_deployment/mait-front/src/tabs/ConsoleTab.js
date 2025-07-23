@@ -97,12 +97,12 @@ function ConsoleTab() {
               </a>
             </div>
             <div><strong>GitHub:</strong> 
-              <a href="https://github.com/chengmlr/MAIT" style={{ 
+              <a href="https://github.com/mait-systems/MAIT.gen" style={{ 
                 color: '#007bff', 
                 textDecoration: 'none',
                 marginLeft: '8px'
               }}>
-                github.com/chengmlr/MAIT
+                github.com/mait-systems/MAIT.gen
               </a>
             </div>
           </div>
