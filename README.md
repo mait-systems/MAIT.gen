@@ -57,18 +57,9 @@ git clone https://github.com/chengmlr/MAIT.git
 cd MAIT
 ```
 
-### 2. Choose Your Setup
-
-#### Option A: Docker Deployment (Recommended)
+### 2. Configure Your Deployment
 ```bash
 cd docker_deployment
-cp .env.example .env
-cp generator_config.yaml.example generator_config.yaml
-```
-
-#### Option B: Local Development
-```bash
-cd "Local code"
 cp .env.example .env
 cp generator_config.yaml.example generator_config.yaml
 ```
@@ -101,32 +92,11 @@ openai:
 
 ### 4. Deploy
 
-#### Docker Deployment:
 ```bash
 cd docker_deployment
 ./deploy.sh  # Automated deployment script
 # OR manually:
 docker-compose up --build -d
-```
-
-#### Local Development:
-```bash
-# Start InfluxDB
-docker run -d -p 8086:8086 influxdb:2.1.1
-
-# Start backend
-cd "Local code/mait-backend"
-pip install -r requirements.txt
-uvicorn main:app --host 0.0.0.0 --port 8001
-
-# Start frontend
-cd "../mait-front"
-npm install
-npm start
-
-# Start modbus poller
-cd ".."
-python gen_modbus_tcp.py
 ```
 
 ### 5. Access Your Dashboard
@@ -197,15 +167,14 @@ All configuration is managed through `generator_config.yaml`:
 ### Project Structure
 ```
 MAIT/
-├── Local code/              # Development environment
-│   ├── gen_modbus_tcp.py   # Modbus polling script
-│   ├── generator_config.yaml # Configuration file
-│   ├── mait-backend/       # FastAPI backend
-│   └── mait-front/         # React frontend
 ├── docker_deployment/      # Production deployment
+│   ├── gen_modbus_tcp.py   # Modbus polling script
+│   ├── generator_config.yaml.example # Configuration template
 │   ├── docker-compose.yml  # Container orchestration
 │   ├── deploy.sh           # Automated deployment
-│   └── ... (same structure as Local code)
+│   ├── mait-backend/       # FastAPI backend
+│   └── mait-front/         # React frontend
+├── LICENSE                 # Software license agreement
 └── PROJECT_MEMORY.md       # Detailed technical documentation
 ```
 
@@ -324,7 +293,9 @@ docker-compose up --build -d
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under a custom Software License Agreement that allows personal and internal use while protecting commercial rights. See the LICENSE file for complete terms.
+
+For commercial use or licensing inquiries, contact: yariksychov@pm.me
 
 ## 🆘 Support
 

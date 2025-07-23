@@ -14,6 +14,9 @@ stbd_gen_output.log
 **/generator_config.yaml
 !**/generator_config.yaml.example
 
+# Local development environment (private)
+Local code/
+
 # Node modules
 node_modules/
 npm-debug.log*
