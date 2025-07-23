@@ -22,6 +22,11 @@ CLAUDE.md
 PROJECT_MEMORY.md
 .claude
 
+# Development workflow and sync scripts (private)
+DEVELOPMENT.md
+sync-dev-files.sh
+sync-to-cloud.sh
+
 # Node modules
 node_modules/
 npm-debug.log*
