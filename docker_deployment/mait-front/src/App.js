@@ -10,7 +10,8 @@ import MaintenanceTab from './tabs/MaintenanceTab';
 import TrendsTab from './tabs/TrendsTab';
 import ReportsTab from './tabs/ReportsTab';
 import ConsoleTab from './tabs/ConsoleTab';
-import EventAlertBadge from './components/EventAlertBadge'; 
+import EventAlertBadge from './components/EventAlertBadge';
+import Footer from './components/Footer'; 
 
 function App() {
   const [tab, setTab] = useState('dashboard'); // default to Reports tab
@@ -60,6 +61,8 @@ function App() {
         {tab === 'reports' && <ReportsTab />}
         {tab === 'console' && <ConsoleTab />}
       </div>
+      
+      <Footer />
     </div>
   );
 }

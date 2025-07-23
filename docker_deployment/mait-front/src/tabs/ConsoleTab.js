@@ -51,6 +51,57 @@ function ConsoleTab() {
       >
         {log}
       </pre>
+
+      {/* System Information Section */}
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
+        gap: '20px',
+        marginTop: '30px'
+      }}>
+        {/* System Info */}
+        <div style={{ 
+          padding: '20px',
+          backgroundColor: '#fff',
+          border: '1px solid #dee2e6',
+          borderRadius: '8px',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+        }}>
+          <h3 style={{ color: '#495057', marginBottom: '15px' }}>📊 System Information</h3>
+          <div style={{ lineHeight: '1.8', fontSize: '0.9em' }}>
+            <div><strong>Version:</strong> 2.1.0</div>
+            <div><strong>Build Date:</strong> 2025-07-23</div>
+            <div><strong>Architecture:</strong> Docker Microservices</div>
+            <div><strong>Database:</strong> InfluxDB Time-Series</div>
+            <div><strong>Protocol:</strong> Modbus TCP</div>
+          </div>
+        </div>
+
+        {/* Contact Information */}
+        <div style={{ 
+          padding: '20px',
+          backgroundColor: '#fff',
+          border: '1px solid #dee2e6',
+          borderRadius: '8px',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+        }}>
+          <h3 style={{ color: '#495057', marginBottom: '15px' }}>📞 Contact Information</h3>
+          <div style={{ lineHeight: '1.8', fontSize: '0.9em' }}>
+            <div><strong>Developer:</strong> Yarik Sychov</div>
+            <div><strong>Email:</strong> 
+              <a href="mailto:yariksychov@pm.me" style={{ 
+                color: '#007bff', 
+                textDecoration: 'none',
+                marginLeft: '8px'
+              }}>
+                yariksychov@pm.me
+              </a>
+            </div>
+            <div><strong>Support:</strong> Professional Installation & Maintenance</div>
+            <div><strong>Response Time:</strong> 24-48 hours</div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
