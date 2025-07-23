@@ -1,5 +1,5 @@
-# MAIT v1.0 - Modular Analytics & Intelligence Toolkit
-## Marine Generator Monitoring System - Professional Installation & Operation Guide
+# MAIT v2.1 - Modular Analytics & Intelligence Toolkit
+## Generator Monitoring System - Professional Installation & Operation Guide
 
 ---
 
@@ -20,12 +20,12 @@
 
 ## 🛠 System Overview
 
-MAIT (Modular Analytics & Intelligence Toolkit) is a comprehensive monitoring solution for marine generators that provides real-time data collection, analysis, and AI-powered insights. The system combines hardware and software components to deliver professional-grade monitoring capabilities.
+MAIT (Modular Analytics & Intelligence Toolkit) is a comprehensive monitoring solution for DecisionMaker3500 generator controllers made by Kohler that provides real-time data collection, analysis, and AI-powered insights. The system combines hardware and software components to deliver professional-grade monitoring capabilities.
 
 ### Key Features
 - **Real-time Data Collection**: Continuous monitoring via Modbus TCP
 - **Time-series Data Storage**: InfluxDB for efficient data management
-- **AI-Powered Analysis**: OpenAI integration for intelligent reporting
+- **AI-Powered Analysis**: Agentic AI integration for reporting
 - **Interactive Dashboard**: React-based frontend with live visualization
 - **Remote Access**: Network-accessible from multiple devices
 - **Professional Reporting**: Automated daily reports with insights
@@ -54,18 +54,19 @@ MAIT (Modular Analytics & Intelligence Toolkit) is a comprehensive monitoring so
 
 ---
 
-## 💻 Hardware Requirements
+## 💻 Hardware Requirements (Community Edition)
+
 
 ### Core Hardware
 - **Raspberry Pi 5** with external power supply and case
-- **MicroSD Card** (32GB minimum, Class 10)
+- **MicroSD Card** (64GB minimum, Class 10)
 - **Moxa NPort 5150A** (Modbus TCP Gateway)
 - **Network Connection** (Ethernet or WiFi)
 
 ### Cables & Connectors
-- **DB9 Serial Cable** (Male-to-Female)
+- **DB9 Serial Cable** (Male-to-Female) or
+- **Terminal Block**
 - **RS485 Wiring** for generator connection
-- **Optional**: Black Box optical isolator for RS232/485 conversion
 
 ### Network Configuration
 - **Generator Network**: 192.168.127.x subnet
@@ -74,7 +75,7 @@ MAIT (Modular Analytics & Intelligence Toolkit) is a comprehensive monitoring so
 
 ---
 
-## 🔧 Hardware Setup
+## 🔧 Hardware Setup (Community Edition)
 
 ### 1. Raspberry Pi Configuration
 
@@ -114,7 +115,7 @@ Boot Options → Desktop Autologin
 ```
 
 #### Network Interface Setup
-Configure Ethernet for generator network:
+Configure Ethernet for generator network via Debian GUI or:
 
 ```bash
 # Set static IP for generator communication
@@ -150,8 +151,8 @@ Interface: RS485 (2-wire)
 **DB9 Cable Pinout** (viewed from connector):
 ```
 Pin 1: Black    →  Not used
-Pin 2: Yellow   →  RS485 A+ (Generator Terminal G)
-Pin 3: Green    →  RS485 B- (Generator Terminal H)
+Pin 2: Yellow   →  A- (RS485)
+Pin 3: Green    →  B+ (RS485)
 Pin 4: Orange   →  Not used
 Pin 5: Red      →  Not used
 Pin 6: Blue     →  Not used
@@ -196,6 +197,11 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io \
 ```
 
 #### Configure Docker (Non-root access)
+
+The Docker daemon binds to a Unix socket, not a TCP port. By default it's the root user that owns the Unix socket, and other users can only access it using sudo. The Docker daemon always runs as the root user.
+
+If you don't want to preface the docker command with sudo, create a Unix group called docker and add users to it. When the Docker daemon starts, it creates a Unix socket accessible by members of the docker group. On some Linux distributions, the system automatically creates this group when installing Docker Engine using a package manager. In that case, there is no need for you to manually create the group.
+
 ```bash
 sudo groupadd docker
 sudo usermod -aG docker $USER
@@ -204,8 +210,11 @@ newgrp docker
 # Test installation
 docker run hello-world
 ```
+This command downloads a test image and runs it in a container. When the container runs, it prints a message and exits.
 
 ### 2. Optional: Container Management UI
+
+There is no official “Docker Desktop” equivalent UI for Linux (like what macOS/Windows users get with Docker Desktop), one of the ways to observe the containers is to install Portainer that provides a web GUI access.
 
 #### Install Portainer
 ```bash
@@ -234,41 +243,22 @@ cd MAIT.gen/docker_deployment
 #### Configure Environment
 ```bash
 # Copy configuration templates
-cp .env.example .env
 cp generator_config.yaml.example generator_config.yaml
 ```
 
+
 #### Deploy System
 ```bash
-# Automated deployment
-./deploy.sh
-
-# OR manual deployment
-docker-compose up --build -d
+docker compose up --build -d
 ```
 
 ---
 
 ## ⚙️ Configuration
 
-### 1. Environment Variables (.env)
-```bash
-# InfluxDB Configuration
-INFLUXDB_ADMIN_USER=admin
-INFLUXDB_ADMIN_PASSWORD=[secure-password]
-INFLUXDB_ORG=your-organization
-INFLUXDB_BUCKET=generator-metrics
-INFLUXDB_TOKEN=[your-influxdb-token]
+The system uses a single YAML configuration file for all settings. Docker Compose has reasonable defaults, so no `.env` file is required for basic operation.
 
-# API Configuration
-REACT_APP_API_URL=http://localhost:3000
-FRONTEND_PORT=3000
-
-# OpenAI Configuration (Optional)
-OPENAI_API_KEY=[your-openai-key]
-```
-
-### 2. Generator Configuration (generator_config.yaml)
+### 1. Generator Configuration (generator_config.yaml)
 
 #### Connection Settings
 ```yaml
@@ -289,13 +279,30 @@ influxdb:
   bucket: "generator-metrics"
 ```
 
-#### OpenAI Integration
+#### OpenAI Integration (Optional)
 ```yaml
 openai:
   api_key: "[your-openai-key]"
   model: "gpt-4"
   max_tokens: 2000
 ```
+
+### 2. Optional: Environment Variables
+
+If you need to customize Docker settings beyond the defaults, create a `.env` file:
+
+```bash
+# Optional: Custom InfluxDB settings
+INFLUXDB_ADMIN_USER=admin
+INFLUXDB_ADMIN_PASSWORD=your-secure-password
+INFLUXDB_ORG=your-organization
+INFLUXDB_BUCKET=generator-metrics
+
+# Optional: Custom ports
+FRONTEND_PORT=3000
+```
+
+**Note**: Most users don't need a `.env` file as Docker Compose provides sensible defaults.
 
 ---
 
@@ -341,7 +348,18 @@ docker-compose logs modbus-poller
 docker-compose logs backend
 docker-compose logs frontend
 ```
+### Diagnostic Commands
+```bash
+# System health check
+docker-compose ps
+docker system df
+docker system prune -f
 
+# Performance monitoring
+docker stats
+free -h
+df -h
+```
 ---
 
 ## 🔍 Troubleshooting
@@ -403,101 +421,11 @@ netstat -tulpn | grep :8086
 sudo kill -9 [PID]
 ```
 
-### Diagnostic Commands
-```bash
-# System health check
-docker-compose ps
-docker system df
-docker system prune -f
-
-# Performance monitoring
-docker stats
-free -h
-df -h
-```
-
----
-
-## 🛠 Development Notes
-
-### Development Environment Setup
-
-#### Node.js Installation
-```bash
-curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-sudo apt-get install -y nodejs
-
-# Verify installation
-node -v && npm -v
-```
-
-#### Python Environment
-```bash
-# Create virtual environment
-python3 -m venv venv
-source venv/bin/activate
-
-# Install dependencies
-pip install -r requirements.txt
-```
-
-### Development Workflow
-```bash
-# Frontend development
-cd mait-front
-npm install
-npm start
-
-# Backend development
-cd mait-backend
-source venv/bin/activate
-uvicorn main:app --host 0.0.0.0 --port 8001 --reload
-
-# Modbus collector testing
-python gen_modbus_tcp.py
-```
-
-### Migration to New Hardware
-1. **Copy project files** to new machine
-2. **Create virtual environments** for Python components
-3. **Install dependencies**: `pip install -r requirements.txt`
-4. **Configure environment** variables and YAML files
-5. **Test connectivity** before full deployment
-
----
-
-## 🚀 Future Enhancements
-
-### Short-term Improvements
-- [ ] **Installation Script**: Automated setup.sh for one-command deployment
-- [ ] **Web Configuration**: GUI for initial system setup
-- [ ] **Mobile Responsive**: Optimize dashboard for mobile devices
-- [ ] **Authentication**: Add user login and access control
-- [ ] **Health Monitoring**: System status indicators and alerts
-
-### Medium-term Features
-- [ ] **Multi-Generator Support**: Monitor multiple generators simultaneously
-- [ ] **Advanced Analytics**: Predictive maintenance algorithms
-- [ ] **Email Notifications**: Automated alert system
-- [ ] **Data Export**: CSV/Excel reporting capabilities
-- [ ] **Cloud Integration**: Optional cloud data backup
-
-### Long-term Vision
-- [ ] **Commercial Licensing**: White-label solutions
-- [ ] **Mobile Application**: Dedicated iOS/Android apps
-- [ ] **Edge Computing**: On-device AI processing
-- [ ] **Industrial Integration**: SCADA system compatibility
-- [ ] **Plug-and-Play Hardware**: Pre-configured hardware packages
-
----
-
 ## 📞 Support & Contact
 
 ### Technical Support
 - **Developer**: Yarik Sychov
 - **Email**: yariksychov@pm.me
-- **Response Time**: 24-48 hours
-- **Support Type**: Professional installation & maintenance
 
 ### Commercial Licensing
 For commercial use, white-label solutions, or enterprise deployments, contact the developer for licensing arrangements.
@@ -509,7 +437,5 @@ For commercial use, white-label solutions, or enterprise deployments, contact th
 This software is protected under a custom Software License Agreement. See the LICENSE file for complete terms regarding personal use, commercial restrictions, and licensing requirements.
 
 ---
-
-**Built with modern technologies for reliable marine generator monitoring**
 
 *Copyright © 2025 Yarik Sychov. All rights reserved.*

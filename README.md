@@ -61,7 +61,6 @@ cd MAIT.gen
 ### 2. Configure Your Deployment
 ```bash
 cd docker_deployment
-cp .env.example .env
 cp generator_config.yaml.example generator_config.yaml
 ```
 
@@ -95,9 +94,7 @@ openai:
 
 ```bash
 cd docker_deployment
-./deploy.sh  # Automated deployment script
-# OR manually:
-docker-compose up --build -d
+docker compose up --build -d
 ```
 
 ### 5. Access Your Dashboard
