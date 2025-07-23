@@ -23,27 +23,31 @@ Generator (Modbus TCP) → Modbus Poller → InfluxDB → Backend API → React 
 
 ### Root Directory Structure
 ```
-MAIT-main/
-├── Local code/                    # Local development environment
-│   ├── gen_modbus_tcp.py         # Modbus poller (moved from backend folder)
-│   ├── generator_config.yaml     # Real secrets and configuration
-│   ├── docker-compose.yml        # Docker orchestration
-│   ├── Dockerfile.poller         # Poller container definition
-│   ├── mait-backend/            # FastAPI backend service
-│   └── mait-front/              # React frontend application
-├── docker_deployment/            # Docker deployment environment
-│   ├── gen_modbus_tcp.py         # Synchronized poller
-│   ├── generator_config.yaml     # Generic placeholder values
-│   ├── docker-compose.yml        # Synchronized compose file
-│   └── [same structure as Local code]
-└── PROJECT_MEMORY.md             # This file
+MAIT/
+├── docker_deployment/                      # Production deployment (public)
+│   ├── gen_modbus_tcp.py                  # Modbus poller
+│   ├── generator_config.yaml.example     # Configuration template
+│   ├── docker-compose.yml                # Docker orchestration
+│   ├── Dockerfile.poller                 # Poller container definition
+│   ├── mait-backend/                     # FastAPI backend service
+│   └── mait-front/                       # React frontend application
+├── Local code/                            # Private development environment (gitignored)
+│   ├── [same structure as docker_deployment]
+│   ├── generator_config.yaml             # Real secrets and configuration
+│   └── MAIT_Professional_Documentation.md # Source for professional docs
+├── LICENSE                                # Custom software license
+├── README.md                              # Quick start guide
+├── MAIT_Professional_Documentation.md     # Comprehensive installation guide
+└── PROJECT_MEMORY.md                      # This file
 ```
 
 ### Key File Details
-- **Modbus Poller**: `gen_modbus_tcp.py` is at root level in both folders (moved from backend/)
-- **Configuration**: Single `generator_config.yaml` per environment (no more configs/ folder)
+- **Modbus Poller**: `gen_modbus_tcp.py` is at root level in deployment folders
+- **Configuration**: Single `generator_config.yaml` per environment with `.example` templates
 - **Logs**: Shared via Docker volumes between containers at `/app/logs`
-- **Synchronization**: Local code and docker_deployment folders are kept in sync
+- **Privacy Protection**: `Local code/` folder is gitignored for development privacy
+- **Documentation**: Dual-tier approach with README + Professional Documentation
+- **Licensing**: Custom license protecting commercial rights while allowing personal use
 
 ## Configuration Management
 
@@ -186,4 +190,46 @@ docker-compose logs -f modbus-poller
 - **Frontend**: `mait-front/src/`
 
 ---
-*Last Updated: July 2025 - All systems operational and synchronized*
+## Latest Session Update - July 23, 2025
+
+### 🎯 Major Accomplishments
+**PROFESSIONAL DOCUMENTATION & REPOSITORY RESTRUCTURE** - Complete overhaul for commercial readiness
+
+### Critical Improvements Completed:
+1. **Professional Documentation** - Created comprehensive MAIT_Professional_Documentation.md with hardware setup, installation procedures, and troubleshooting
+2. **Repository Privacy** - Removed "Local code" folder from public repository, added to .gitignore for development privacy
+3. **UI Enhancement** - Added professional footer, improved Console tab with system info and contact details, removed cluttered About tab
+4. **Custom Licensing** - Implemented comprehensive software license protecting commercial rights while allowing personal use
+5. **Documentation Hierarchy** - Established clear separation between quick-start README and professional installation guide
+
+### Repository Structure Changes:
+- **Public Repository**: Only contains `docker_deployment/`, documentation, and licensing
+- **Private Development**: `Local code/` folder gitignored for development privacy
+- **Documentation Dual-Tier**: README.md for quick start, Professional Documentation for comprehensive setup
+- **Commercial Protection**: Custom license agreement with clear terms and contact information
+
+### UI/UX Improvements:
+- **Footer Component**: Professional branding on all pages with copyright notice
+- **Console Tab Enhancement**: Added system information and contact details below logs
+- **Navigation Cleanup**: Removed About tab to prevent overcrowding, improved button layout
+- **Professional Contact**: Clear pathways for commercial licensing and professional support
+
+### Current Operational Status:
+- **Generator**: Kohler 150kW, ECM Model 33, stable monitoring via Modbus TCP at 192.168.127.254:502
+- **System**: All components operational - data collection, storage, AI analysis, frontend visualization
+- **Documentation**: Professional-grade installation guide ready for customer deployment
+- **Commercial Ready**: Licensing, documentation, and support structure in place
+
+### Repository Status:
+- **Latest Commit**: fcc45cc - "Add comprehensive professional documentation and update README"
+- **Privacy**: Development environment protected from public access
+- **Documentation**: Complete hardware/software setup guide available
+- **Licensing**: Custom agreement protecting commercial interests
+
+### Future Development Path:
+- **Single Environment**: Consider transitioning to docker_deployment-only workflow for simplicity
+- **Installation Automation**: Potential for automated setup scripts
+- **Commercial Deployment**: Ready for professional installations and customer delivery
+
+---
+*Last Updated: July 23, 2025 - COMMERCIALLY READY WITH PROFESSIONAL DOCUMENTATION*
