@@ -17,6 +17,11 @@ stbd_gen_output.log
 # Local development environment (private)
 Local code/
 
+# Claude development files (private)
+CLAUDE.md
+PROJECT_MEMORY.md
+.claude
+
 # Node modules
 node_modules/
 npm-debug.log*
