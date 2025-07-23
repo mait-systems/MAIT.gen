@@ -237,7 +237,7 @@ docker run -d -p 8000:8000 -p 9443:9443 \
 ```bash
 cd ~
 git clone https://github.com/mait-systems/MAIT.gen.git
-cd MAIT.gen/docker_deployment
+cd MAIT.gen
 ```
 
 #### Configure Environment
@@ -310,8 +310,8 @@ FRONTEND_PORT=3000
 
 ### 1. System Startup
 ```bash
-cd ~/MAIT.gen/docker_deployment
-docker-compose up -d
+cd ~/MAIT.gen
+docker compose up -d
 ```
 
 ### 2. Access Points

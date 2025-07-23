@@ -60,7 +60,6 @@ cd MAIT.gen
 
 ### 2. Configure Your Deployment
 ```bash
-cd docker_deployment
 cp generator_config.yaml.example generator_config.yaml
 ```
 
@@ -93,7 +92,6 @@ openai:
 ### 4. Deploy
 
 ```bash
-cd docker_deployment
 docker compose up --build -d
 ```
 
@@ -164,16 +162,15 @@ All configuration is managed through `generator_config.yaml`:
 
 ### Project Structure
 ```
-MAIT/
-├── docker_deployment/      # Production deployment
-│   ├── gen_modbus_tcp.py   # Modbus polling script
-│   ├── generator_config.yaml.example # Configuration template
-│   ├── docker-compose.yml  # Container orchestration
-│   ├── deploy.sh           # Automated deployment
-│   ├── mait-backend/       # FastAPI backend
-│   └── mait-front/         # React frontend
-├── LICENSE                 # Software license agreement
-└── PROJECT_MEMORY.md       # Detailed technical documentation
+MAIT.gen/
+├── gen_modbus_tcp.py              # Modbus polling script
+├── generator_config.yaml.example # Configuration template
+├── docker-compose.yml             # Container orchestration
+├── mait-backend/                  # FastAPI backend
+├── mait-front/                    # React frontend
+├── LICENSE                        # Software license agreement
+├── README.md                      # Quick start guide
+└── MAIT_Professional_Documentation.md # Complete setup guide
 ```
 
 ### Key Components
@@ -295,7 +292,7 @@ Includes:
 
 ### Additional Resources
 - **Technical Documentation**: See `PROJECT_MEMORY.md`
-- **Configuration Examples**: Check `.example` files in `docker_deployment/`
+- **Configuration Examples**: Check `.example` files in repository root
 
 ## 🤝 Contributing
 
