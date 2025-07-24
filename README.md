@@ -39,15 +39,27 @@ A comprehensive monitoring system for DecisionMaker3500 equipped generators usin
                                            └───────────────┘
 ```
 
-## 📊 Live Dashboard Preview
+### Quick Dash Preview
 
-![MAIT Dashboard Overview](https://github.com/mait-systems/MAIT.gen/blob/main/manuals/screenshots/mait_dash.jpg?raw=true)
+![MAIT Live Dashboard](https://github.com/mait-systems/MAIT.gen/blob/main/manuals/screenshots/mait_dash.jpg?raw=true)
 
-*Real-time generator monitoring with live metrics, AI analysis, and comprehensive system oversight*
+*Live dash interface tab with real-time data visualization, system health indicators*
 
-![Generator Monitoring Tab](https://github.com/mait-systems/MAIT.gen/blob/main/manuals/screenshots/mait_gen.jpg?raw=true)
+#### Generator Monitoring Tab
+![Generator Performance Monitoring](https://github.com/mait-systems/MAIT.gen/blob/main/manuals/screenshots/mait_gen.jpg?raw=true)
 
-*Detailed generator performance metrics with real-time electrical and engine parameters*
+*Real-time generator performance metrics including voltage, current, power output, frequency, and engine parameters*
+
+#### Trends Analysis Tab  
+![Historical Trends Analysis](https://github.com/mait-systems/MAIT.gen/blob/main/manuals/screenshots/mait_trends.jpg?raw=true)
+
+*Historical data visualization with customizable time ranges for performance analysis and trend identification*
+
+#### AI-Powered Reports Tab
+![AI Analysis and Reporting](https://github.com/mait-systems/MAIT.gen/blob/main/manuals/screenshots/mait_ai.jpg?raw=true)
+
+*Intelligent analysis and automated reporting with AI-generated insights, recommendations, and system health assessments*
+---
 
 ## 📋 Requirements
 

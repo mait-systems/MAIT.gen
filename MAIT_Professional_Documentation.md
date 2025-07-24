@@ -29,12 +29,26 @@ MAIT (Modular Analytics & Intelligence Toolkit) is a comprehensive monitoring so
 - **Remote Access**: Network-accessible from multiple devices
 - **Professional Reporting**: Automated daily reports with insights
 
-### 📊 Live Dashboard Preview
+### Quick Dash Preview
 
-![MAIT Professional Dashboard](https://github.com/mait-systems/MAIT.gen/blob/main/manuals/screenshots/mait_dash.jpg?raw=true)
+![MAIT Live Dashboard](https://github.com/mait-systems/MAIT.gen/blob/main/manuals/screenshots/mait_dash.jpg?raw=true)
 
-*Professional-grade monitoring interface with real-time data visualization, system health indicators, and intelligent analytics*
+*Live dash interface tab with real-time data visualization, system health indicators*
 
+#### Generator Monitoring Tab
+![Generator Performance Monitoring](https://github.com/mait-systems/MAIT.gen/blob/main/manuals/screenshots/mait_gen.jpg?raw=true)
+
+*Real-time generator performance metrics including voltage, current, power output, frequency, and engine parameters*
+
+#### Trends Analysis Tab  
+![Historical Trends Analysis](https://github.com/mait-systems/MAIT.gen/blob/main/manuals/screenshots/mait_trends.jpg?raw=true)
+
+*Historical data visualization with customizable time ranges for performance analysis and trend identification*
+
+#### AI-Powered Reports Tab
+![AI Analysis and Reporting](https://github.com/mait-systems/MAIT.gen/blob/main/manuals/screenshots/mait_ai.jpg?raw=true)
+
+*Intelligent analysis and automated reporting with AI-generated insights, recommendations, and system health assessments*
 ---
 
 ## 🏗 Architecture
@@ -349,22 +363,6 @@ docker compose up -d
 | **InfluxDB** | `http://localhost:8086` | Database management |
 | **Portainer** | `https://localhost:9443` | Container management |
 
-### 3. Dashboard Features Overview
-
-#### Generator Monitoring Tab
-![Generator Performance Monitoring](https://github.com/mait-systems/MAIT.gen/blob/main/manuals/screenshots/mait_gen.jpg?raw=true)
-
-*Real-time generator performance metrics including voltage, current, power output, frequency, and engine parameters*
-
-#### Trends Analysis Tab  
-![Historical Trends Analysis](https://github.com/mait-systems/MAIT.gen/blob/main/manuals/screenshots/mait_trends.jpg?raw=true)
-
-*Historical data visualization with customizable time ranges for performance analysis and trend identification*
-
-#### AI-Powered Reports Tab
-![AI Analysis and Reporting](https://github.com/mait-systems/MAIT.gen/blob/main/manuals/screenshots/mait_ai.jpg?raw=true)
-
-*Intelligent analysis and automated reporting with AI-generated insights, recommendations, and system health assessments*
 
 ### 3. Network Access
 For remote access from other devices:
