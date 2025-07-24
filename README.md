@@ -61,6 +61,7 @@ cd MAIT.gen
 ### 2. Configure Your Deployment
 ```bash
 cp generator_config.yaml.example generator_config.yaml
+cp .env.example .env
 ```
 
 ### 3. Configure Your System
@@ -68,26 +69,36 @@ cp generator_config.yaml.example generator_config.yaml
 Edit `generator_config.yaml`:
 ```yaml
 connection:
-  host: "YOUR_MODBUS_GATEWAY_IP"  # Replace with your gateway IP
+  host: "YOUR_MODBUS_GATEWAY_IP"  # Replace with your gateway IP, ex. "192.168.127.254"
   port: 502
   unit_id: 1
 
 influxdb:
-  token: "YOUR_INFLUXDB_TOKEN"    # Generate a secure token
-  org: "your-organization"         # Your organization name
-  bucket: "your-bucket-name"       # Your data bucket name
+  token: "YOUR_INFLUXDB_TOKEN"    # Generate a secure token, ex. "ECRbc2byEqKeAMXsgI6YZvMh2g0Dk"
+  org: "your-organization"         # Create your organization name, "myorg"
+  bucket: "your-bucket-name"       # Create your data bucket name, ex. "generator-metrics"
+
+openai:
+  api_key: "your-openai-api-key-here" # You can get your OpenAI API key online
 ```
 
-Edit `generator_config.yaml` with your real credentials:
+Edit `.env` file:
+
+Match your influx configuration from generator_config.yaml. Example:
 ```yaml
-influxdb:
-  token: "your-influxdb-token-here"
-  org: "your-organization"
-  bucket: "generator-metrics"
-  
-openai:
-  api_key: "your-openai-api-key-here"
+# InfluxDB Configuration (from generator_config.yaml)
+INFLUXDB_TOKEN=ECRbc2byEqKeAMXsgI6YZvMh2g0Dk
+INFLUXDB_ORG=myorg
+INFLUXDB_BUCKET=generator-metric
+INFLUXDB_ADMIN_USER=admin # Set admin username for Influx
+INFLUXDB_ADMIN_PASSWORD=admin123 # Set admin password for influx
+
+# Generator Configuration (from generator_config.yaml)
+MODBUS_HOST=192.168.127.254
+MODBUS_PORT=502
+MODBUS_UNIT_ID=1
 ```
+
 
 ### 4. Deploy
 

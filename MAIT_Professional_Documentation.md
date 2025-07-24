@@ -255,35 +255,36 @@ docker compose up --build -d
 
 ## ⚙️ Configuration
 
-The system uses a single YAML configuration file for all settings. Docker Compose has reasonable defaults, so no `.env` file is required for basic operation.
+The system uses a single YAML configuration file for all settings. Docker Compose requires `.env` for basic operation.
 
-### 1. Generator Configuration (generator_config.yaml)
+### Create yaml and .env files:
+```bash
+cp generator_config.yaml.example generator_config.yaml
+cp .env.example .env
+```
 
-#### Connection Settings
+### First, edit you Generator Configuration (generator_config.yaml)
+
+#### Connection Configuration
 ```yaml
+
 connection:
-  host: "192.168.127.254"  # Moxa gateway IP
+  host: "YOUR_MODBUS_GATEWAY_IP"  # Replace with your Moxa gateway IP, ex. "192.168.127.254"
   port: 502
   unit_id: 1
-  timeout: 10
-  retries: 3
 ```
 
 #### Database Configuration
 ```yaml
 influxdb:
-  url: "http://influxdb:8086"
-  token: "[your-influxdb-token]"
-  org: "your-organization"
-  bucket: "generator-metrics"
+  token: "YOUR_INFLUXDB_TOKEN"    # Generate a secure token, ex. "ECRbc2byEqKeAMXsgI6YZvMh2g0Dk"
+  org: "your-organization"         # Create your organization name, "myorg"
+  bucket: "your-bucket-name"       # Create your data bucket name, ex. "generator-metrics"
+
+openai:
+  api_key: "your-openai-api-key-here" # You can get your OpenAI API key online
 ```
-```yaml
-influxdb:
-  url: "http://influxdb:8086"
-  token: "[your-influxdb-token]"
-  org: "your-organization"
-  bucket: "generator-metrics"
-```
+
 #### OpenAI Integration (Optional)
 ```yaml
 openai:
@@ -292,23 +293,22 @@ openai:
   max_tokens: 2000
 ```
 
-### 2. Optional: Environment Variables
+### Edit Environment Variables (.env file)
 
-If you need to customize Docker settings beyond the defaults, create a `.env` file:
+Match your influx configuration from generator_config.yaml. Example:
+```yaml
+# InfluxDB Configuration (from generator_config.yaml)
+INFLUXDB_TOKEN=ECRbc2byEqKeAMXsgI6YZvMh2g0Dk
+INFLUXDB_ORG=myorg
+INFLUXDB_BUCKET=generator-metric
+INFLUXDB_ADMIN_USER=admin # Set admin username for Influx
+INFLUXDB_ADMIN_PASSWORD=admin123 # Set admin password for influx
 
-```bash
-# Optional: Custom InfluxDB settings
-INFLUXDB_ADMIN_USER=admin
-INFLUXDB_ADMIN_PASSWORD=your-secure-password
-INFLUXDB_ORG=your-organization
-INFLUXDB_BUCKET=generator-metrics
-
-# Optional: Custom ports
-FRONTEND_PORT=3000
+# Generator Configuration (from generator_config.yaml)
+MODBUS_HOST=192.168.127.254
+MODBUS_PORT=502
+MODBUS_UNIT_ID=1
 ```
-
-**Note**: Most users don't need a `.env` file as Docker Compose provides sensible defaults.
-
 ---
 
 ## 🚀 Operation
