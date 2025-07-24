@@ -49,7 +49,7 @@ MAIT (Modular Analytics & Intelligence Toolkit) is a comprehensive monitoring so
 ![AI Analysis and Reporting](https://github.com/mait-systems/MAIT.gen/blob/main/manuals/screenshots/mait_ai.jpg?raw=true)
 
 *Intelligent analysis and automated reporting with AI-generated insights, recommendations, and system health assessments*
----
+
 
 ## 🏗 Architecture
 
