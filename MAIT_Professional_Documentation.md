@@ -129,12 +129,17 @@ sudo ip link set eth0 up
 
 ### 2. Moxa Gateway Configuration
 
+![Moxa NPort 5150A Setup](https://github.com/mait-systems/MAIT.gen/blob/main/manuals/Nport5150A.png?raw=true)
+
 #### Access Gateway
 1. **Navigate to**: `http://192.168.127.254`
 2. **Login**: `admin` / `moxa`
 
 #### Serial Settings
 Configure for Kohler DecisionMaker 3500:
+
+![Moxa Serial Settings](https://github.com/mait-systems/MAIT.gen/blob/main/manuals/Nport5150A_serial_settings.png?raw=true)
+
 ```
 Baud Rate: 19200
 Data Bits: 8
@@ -144,9 +149,19 @@ Flow Control: None
 Interface: RS485 (2-wire)
 ```
 
+#### TCP Settings
+Configure the TCP settings for Modbus communication:
+
+![Moxa TCP Settings](https://github.com/mait-systems/MAIT.gen/blob/main/manuals/Nport5150A_tcp_settings.png?raw=true)
+
 ### 3. Wiring Connections
 
+#### DecisionMaker 3500 Controller Wiring
+![DecisionMaker 3500 Wiring Diagram](https://github.com/mait-systems/MAIT.gen/blob/main/manuals/DM3500wiring.png?raw=true)
+
 #### Moxa to Generator Wiring
+![Moxa NPort Wiring Diagram](https://github.com/mait-systems/MAIT.gen/blob/main/manuals/Nport5150Awiring.png?raw=true)
+
 **DB9 Cable Pinout** (viewed from connector):
 ```
 Pin 1: Black    →  Not used
