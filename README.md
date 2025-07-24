@@ -59,7 +59,6 @@ A comprehensive monitoring system for DecisionMaker3500 equipped generators usin
 ![AI Analysis and Reporting](https://github.com/mait-systems/MAIT.gen/blob/main/manuals/screenshots/mait_ai.jpg?raw=true)
 
 *Intelligent analysis and automated reporting with AI-generated insights, recommendations, and system health assessments*
----
 
 ## 📋 Requirements
 
