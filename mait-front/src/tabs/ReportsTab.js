@@ -189,7 +189,7 @@ function ReportsTab() {
         marginBottom: '20px' 
       }}>
         <h2 style={{ margin: '0 0 16px 0', display: 'flex', alignItems: 'center' }}>
-          🧠 PowertrainAgent Control Panel
+          PowertrainAgent Control Panel
         </h2>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
           {/* Status Indicator */}
@@ -201,9 +201,9 @@ function ReportsTab() {
             ) : powertrainStatus ? (
               <>
                 {getStatusIcon(powertrainStatus.alert_level)} 
-                <span style={{ color: getStatusColor(powertrainStatus.alert_level) }}>
-                  PowertrainAgent Active ({powertrainStatus.alert_level})
-                </span>
+              <span style={{ color: getStatusColor(powertrainStatus.alert_level) }}>
+                PowertrainAgent Active ({powertrainStatus.alert_level})
+              </span>
               </>
             ) : (
               <>⚪ <span style={{ color: '#6c757d' }}>Loading...</span></>
@@ -223,7 +223,7 @@ function ReportsTab() {
               cursor: isBootstrapping ? 'not-allowed' : 'pointer'
             }}
           >
-            {isBootstrapping ? '⚙️ Bootstrapping...' : '🧠 Bootstrap Memory'}
+            {isBootstrapping ? '⚙️ Bootstrapping...' : 'Bootstrap Memory'}
           </button>
 
           <button 
@@ -262,7 +262,7 @@ function ReportsTab() {
           borderRadius: '8px', 
           padding: '16px' 
         }}>
-          <h3 style={{ margin: '0 0 16px 0', color: '#28a745' }}>📊 Real-Time Analysis</h3>
+          <h3 style={{ margin: '0 0 16px 0', color: '#28a745' }}>Real-Time Analysis</h3>
           
           {powertrainStatus && !powertrainStatus.error ? (
             <div>
@@ -323,7 +323,7 @@ function ReportsTab() {
                   width: '100%'
                 }}
               >
-                {showDetails ? '📄 Hide Details' : '📊 View Details'}
+                {showDetails ? 'Hide Details' : 'View Details'}
               </button>
 
               {showDetails && powertrainStatus.ai_analysis && (
@@ -354,7 +354,7 @@ function ReportsTab() {
           borderRadius: '8px', 
           padding: '16px' 
         }}>
-          <h3 style={{ margin: '0 0 16px 0', color: '#6f42c1' }}>📈 Historical Intelligence</h3>
+          <h3 style={{ margin: '0 0 16px 0', color: '#6f42c1' }}>Historical Intelligence</h3>
           
           {powertrainMemory ? (
             <div>
@@ -371,7 +371,7 @@ function ReportsTab() {
 
               {/* Recent Insights */}
               <div style={{ marginBottom: '16px' }}>
-                <h4 style={{ margin: '0 0 8px 0', fontSize: '1em' }}>🧠 Recent Insights:</h4>
+                <h4 style={{ margin: '0 0 8px 0', fontSize: '1em' }}>Recent Insights:</h4>
                 {powertrainMemory.insights && powertrainMemory.insights.length > 0 ? (
                   <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
                     {powertrainMemory.insights.slice(0, 5).map((insight, index) => (
@@ -439,7 +439,7 @@ function ReportsTab() {
           borderRadius: '8px', 
           padding: '16px' 
         }}>
-          <h3 style={{ margin: '0 0 16px 0', color: '#dc3545' }}>🚨 Alert Management</h3>
+          <h3 style={{ margin: '0 0 16px 0', color: '#dc3545' }}>Alert Management</h3>
           
           {/* Alert Summary */}
           <div style={{ marginBottom: '16px' }}>
