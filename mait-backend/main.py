@@ -329,3 +329,221 @@ async def generate_daily_report():
 
     report = response.choices[0].message.content
     return {"report": report}
+
+@app.get("/api/powertrain-status")
+async def get_powertrain_status():
+    """Get current PowertrainAgent status and latest analysis"""
+    query_api = influx_client.query_api()
+    
+    # Get latest powertrain analysis
+    query = f'''
+    from(bucket: "{INFLUXDB_BUCKET}")
+      |> range(start: -1h)
+      |> filter(fn: (r) => r._measurement == "powertrain_analysis")
+      |> last()
+    '''
+    
+    try:
+        result = query_api.query_data_frame(org=INFLUXDB_ORG, query=query)
+        
+        if isinstance(result, list):
+            result = pd.concat(result, ignore_index=True)
+        
+        if result.empty:
+            return {"status": "No recent PowertrainAgent analysis found"}
+        
+        # Convert to dictionary - handle InfluxDB data structure with tags and fields
+        latest_data = {}
+        
+        for _, row in result.iterrows():
+            field_name = row.get('_field')
+            field_value = row.get('_value')
+            
+            # Store field values
+            if field_name and field_value is not None:
+                latest_data[field_name] = field_value
+            
+            # Store tags (they appear in every row)
+            latest_data['alert_level'] = row.get('alert_level', 'UNKNOWN')
+            latest_data['load_band'] = row.get('load_band', 'unknown')
+            latest_data['_time'] = row.get('_time')
+        
+        # Handle timestamp conversion safely
+        timestamp_value = latest_data.get("_time", "")
+        if hasattr(timestamp_value, 'isoformat'):
+            timestamp_str = timestamp_value.isoformat().replace("T", " ").replace("Z", "")
+        else:
+            timestamp_str = str(timestamp_value).replace("T", " ").replace("Z", "")
+        
+        return {
+            "timestamp": timestamp_str,
+            "alert_level": latest_data.get("alert_level", "UNKNOWN"),
+            "load_band": latest_data.get("load_band", "unknown"),
+            "engine_speed": latest_data.get("engine_speed", 0),
+            "engine_oil_pressure": latest_data.get("engine_oil_pressure", 0),
+            "generator_power": latest_data.get("generator_power", 0),
+            "coolant_temperature": latest_data.get("coolant_temperature", 0),
+            "analysis_summary": latest_data.get("analysis_summary", "No summary available"),
+            "ai_analysis": latest_data.get("ai_analysis", "")
+        }
+        
+    except Exception as e:
+        return {"error": f"Failed to get powertrain status: {str(e)}"}
+
+@app.get("/api/powertrain-trends")
+async def get_powertrain_trends(hours: int = 24):
+    """Get PowertrainAgent trend analysis"""
+    query_api = influx_client.query_api()
+    
+    query = f'''
+    from(bucket: "{INFLUXDB_BUCKET}")
+      |> range(start: -{hours}h)
+      |> filter(fn: (r) => r._measurement == "powertrain_analysis" and (
+        r._field == "engine_oil_pressure" or
+        r._field == "engine_speed" or
+        r._field == "generator_power"
+      ))
+      |> aggregateWindow(every: 15m, fn: mean, createEmpty: false)
+      |> pivot(rowKey: ["_time"], columnKey: ["_field"], valueColumn: "_value")
+    '''
+    
+    try:
+        result = query_api.query_data_frame(org=INFLUXDB_ORG, query=query)
+        
+        if isinstance(result, list):
+            result = pd.concat(result, ignore_index=True)
+        
+        if result.empty:
+            return []
+        
+        result = result.replace([np.inf, -np.inf], np.nan).dropna()
+        result["_time"] = result["_time"].astype(str)
+        
+        return result.to_dict(orient="records")
+        
+    except Exception as e:
+        return {"error": f"Failed to get powertrain trends: {str(e)}"}
+
+@app.get("/api/powertrain-alerts")
+async def get_powertrain_alerts(hours: int = 24):
+    """Get recent PowertrainAgent alerts"""
+    query_api = influx_client.query_api()
+    
+    query = f'''
+    from(bucket: "{INFLUXDB_BUCKET}")
+      |> range(start: -{hours}h)
+      |> filter(fn: (r) => r._measurement == "powertrain_alerts")
+      |> sort(columns: ["_time"], desc: true)
+      |> limit(n: 50)
+    '''
+    
+    try:
+        result = query_api.query_data_frame(org=INFLUXDB_ORG, query=query)
+        
+        if isinstance(result, list):
+            result = pd.concat(result, ignore_index=True)
+        
+        if result.empty:
+            return []
+        
+        alerts = []
+        for _, row in result.iterrows():
+            alert = {
+                "timestamp": str(row.get("_time", "")),
+                "severity": row.get("severity", "INFO"),
+                "description": row.get("description", ""),
+                "load_band": row.get("load_band", "unknown"),
+                "oil_pressure": row.get("oil_pressure", 0),
+                "engine_speed": row.get("engine_speed", 0),
+                "resolved": row.get("resolved", False)
+            }
+            alerts.append(alert)
+        
+        return alerts
+        
+    except Exception as e:
+        return {"error": f"Failed to get powertrain alerts: {str(e)}"}
+
+@app.get("/api/powertrain-baselines")
+async def get_powertrain_baselines(load_band: str = "0-20%", days: int = 30):
+    """Get PowertrainAgent historical baselines"""
+    query_api = influx_client.query_api()
+    
+    query = f'''
+    from(bucket: "{INFLUXDB_BUCKET}")
+      |> range(start: -{days}d)
+      |> filter(fn: (r) => r._measurement == "powertrain_baselines" and 
+        r.load_band == "{load_band}")
+      |> sort(columns: ["_time"], desc: false)
+    '''
+    
+    try:
+        result = query_api.query_data_frame(org=INFLUXDB_ORG, query=query)
+        
+        if isinstance(result, list):
+            result = pd.concat(result, ignore_index=True)
+        
+        if result.empty:
+            return {"message": f"No baseline data found for load band {load_band}"}
+        
+        baselines = []
+        for _, row in result.iterrows():
+            baseline = {
+                "timestamp": str(row.get("_time", "")),
+                "load_band": row.get("load_band", load_band),
+                "period_type": row.get("period_type", "hourly"),
+                "avg_oil_pressure": row.get("avg_oil_pressure", 0),
+                "avg_engine_speed": row.get("avg_engine_speed", 0),
+                "avg_power_output": row.get("avg_power_output", 0),
+                "sample_count": row.get("sample_count", 0),
+                "confidence_level": row.get("confidence_level", 0)
+            }
+            baselines.append(baseline)
+        
+        return baselines
+        
+    except Exception as e:
+        return {"error": f"Failed to get powertrain baselines: {str(e)}"}
+
+@app.get("/api/powertrain-memory")
+async def get_powertrain_memory(knowledge_type: str = "all", days: int = 7):
+    """Get PowertrainAgent accumulated memory/insights"""
+    query_api = influx_client.query_api()
+    
+    if knowledge_type == "all":
+        filter_clause = 'r._measurement == "powertrain_ai_memory"'
+    else:
+        filter_clause = f'r._measurement == "powertrain_ai_memory" and r.knowledge_type == "{knowledge_type}"'
+    
+    query = f'''
+    from(bucket: "{INFLUXDB_BUCKET}")
+      |> range(start: -{days}d)
+      |> filter(fn: (r) => {filter_clause})
+      |> sort(columns: ["_time"], desc: true)
+      |> limit(n: 20)
+    '''
+    
+    try:
+        result = query_api.query_data_frame(org=INFLUXDB_ORG, query=query)
+        
+        if isinstance(result, list):
+            result = pd.concat(result, ignore_index=True)
+        
+        if result.empty:
+            return {"message": "No memory data found", "insights": []}
+        
+        insights = []
+        for _, row in result.iterrows():
+            insight = {
+                "timestamp": str(row.get("_time", "")),
+                "knowledge_type": row.get("knowledge_type", "unknown"),
+                "confidence": row.get("confidence", "medium"),
+                "insight_text": row.get("insight_text", ""),
+                "validation_status": row.get("validation_status", "pending")
+            }
+            insights.append(insight)
+        
+        return {"insights": insights, "total_count": len(insights)}
+        
+    except Exception as e:
+        return {"error": f"Failed to get powertrain memory: {str(e)}"}

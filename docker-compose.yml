@@ -61,6 +61,25 @@ services:
     depends_on:
       - influxdb
 
+  powertrain-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile.powertrain
+    volumes:
+      - ./generator_config.yaml:/app/generator_config.yaml
+      - shared_logs:/app/logs
+    environment:
+      - INFLUXDB_URL=http://influxdb:8086
+      - INFLUXDB_TOKEN=${INFLUXDB_TOKEN:-your-influxdb-token-here}
+      - INFLUXDB_ORG=${INFLUXDB_ORG:-mlr}
+      - INFLUXDB_BUCKET=${INFLUXDB_BUCKET:-stbd_gen}
+      - POWERTRAIN_INTERVAL=${POWERTRAIN_INTERVAL:-5}
+      - POWERTRAIN_BOOTSTRAP=${POWERTRAIN_BOOTSTRAP:-false}
+    depends_on:
+      - influxdb
+      - modbus-poller
+    restart: unless-stopped
+
 volumes:
   influxdb_data:
   influxdb_config:
