@@ -3,16 +3,45 @@
 
 A comprehensive monitoring system for DecisionMaker3500 equipped generators using Modbus TCP communication, real-time data visualization, and AI-powered analytics.
 
+## 📋 Version Information
+
+**Current Branch: `feature/powertrain-ai` (v3.0.0-ai-enhanced)**
+- AI-powered PowertrainAgent system with intelligent health monitoring
+- Memory-enhanced analysis with historical pattern recognition  
+- Advanced anomaly detection and predictive maintenance insights
+- Real-time AI analysis with OpenAI GPT-4 integration
+
+**Stable Version: `v2.0.0` (Available via git tag)**
+- Core generator monitoring without AI features
+- Lighter resource requirements
+- Perfect for basic monitoring needs
+- Download: `git checkout v2.0.0`
+
+### 🔄 Choosing Your Version
+- **For Advanced Users**: Use current `feature/powertrain-ai` branch for AI-enhanced monitoring
+- **For Basic Monitoring**: Use `git checkout v2.0.0` for stable, lightweight version
+- **For Production**: Recommend v2.0.0 for proven stability, or AI branch for cutting-edge features
+
 ## 🚀 Features
 
+### Core Features (All Versions)
 - **Real-time Monitoring**: Live dashboard with generator metrics and status
-- **Modbus TCP Integration**: Connects to generator controllers via Modbus gateways
+- **Modbus TCP Integration**: Connects to generator controllers via Modbus gateways  
 - **Time-series Data Storage**: InfluxDB for efficient data storage and querying
 - **Interactive Dashboard**: React-based frontend with real-time updates
-- **AI-Powered Analytics**: AI integration for data analysis
 - **Docker Deployment**: Complete containerized solution for easy deployment
 - **Event Monitoring**: Real-time alerts and event tracking
 - **Network Access**: Accessible from multiple devices on the same network
+
+### 🧠 AI-Enhanced Features (v3.0.0-ai-enhanced)
+- **PowertrainAgent**: Intelligent health monitoring with persistent memory
+- **Predictive Analytics**: AI-powered anomaly detection and trend analysis
+- **Memory System**: Multi-layered historical baselines (hourly, daily, weekly, monthly)
+- **Load Band Classification**: Intelligent categorization (0%, 0-20%, 20-40%, 40-60%, 60-80%, 80-100%)
+- **OpenAI Integration**: GPT-4 powered health assessments and recommendations
+- **Pattern Recognition**: Historical trend analysis with learning capabilities
+- **Smart Alerts**: Context-aware alert system with severity classification
+- **Bootstrap Memory**: Process ALL historical data for comprehensive analysis
 
 ## 🏗️ System Architecture
 
