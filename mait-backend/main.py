@@ -377,6 +377,7 @@ async def get_powertrain_status():
             timestamp_str = str(timestamp_value).replace("T", " ").replace("Z", "")
         
         # Check if data is too old (might indicate agent is truly offline)
+        agent_status = latest_data.get("agent_state", "UNKNOWN")
         try:
             import time
             if hasattr(timestamp_value, 'timestamp'):
@@ -387,13 +388,13 @@ async def get_powertrain_status():
                 dt = datetime.fromisoformat(str(timestamp_value).replace('Z', '+00:00'))
                 data_age_seconds = (datetime.now(dt.tzinfo) - dt).total_seconds()
             
-            # If data is more than 10 minutes old, consider agent offline
-            if data_age_seconds > 600:
+            # Only consider agent offline if data is very old AND not explicitly paused
+            # Paused agents may have old data but are still functioning (monitoring for engine activity)
+            if data_age_seconds > 1800 and agent_status not in ["PAUSED"]:  # 30 minutes for non-paused agents
                 agent_status = "OFFLINE"
-            else:
-                agent_status = latest_data.get("agent_state", "UNKNOWN")
         except:
-            agent_status = latest_data.get("agent_state", "UNKNOWN")
+            # Keep the original agent state if timestamp parsing fails
+            pass
         
         # Get current AI toggle status - prioritize powertrain_config for immediate UI feedback
         current_ai_enabled = latest_data.get("ai_enabled", True)  # Default from analysis

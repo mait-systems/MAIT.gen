@@ -203,7 +203,7 @@ function ReportsTab() {
     switch (agentState) {
       case 'ACTIVE': return '🟢';
       case 'IDLE': return '🟡';
-      case 'PAUSED': return '🔴';
+      case 'PAUSED': return '⏸️';
       case 'OFFLINE': return '⚫';
       default: return '⚪';
     }
@@ -213,7 +213,7 @@ function ReportsTab() {
     switch (agentState) {
       case 'ACTIVE': return '#28a745';
       case 'IDLE': return '#fd7e14';
-      case 'PAUSED': return '#dc3545';
+      case 'PAUSED': return '#ff8c00';
       case 'OFFLINE': return '#6c757d';
       default: return '#6c757d';
     }
@@ -223,7 +223,7 @@ function ReportsTab() {
     switch (agentState) {
       case 'ACTIVE': return 'Active';
       case 'IDLE': return 'Idle';
-      case 'PAUSED': return 'Paused';
+      case 'PAUSED': return 'Paused (monitoring for engine activity)';
       case 'OFFLINE': return 'Offline';
       default: return 'Unknown';
     }
