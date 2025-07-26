@@ -20,6 +20,7 @@ function ReportsTab() {
   const [showDetails, setShowDetails] = useState(false);
   const [selectedLoadBand, setSelectedLoadBand] = useState('all');
   const [lastRefresh, setLastRefresh] = useState(new Date());
+  const [aiToggleLoading, setAiToggleLoading] = useState(false);
 
   // Auto-refresh interval refs
   const statusIntervalRef = useRef(null);
@@ -135,6 +136,22 @@ function ReportsTab() {
     await fetchPowertrainMemory(newLoadBand === 'all' ? null : newLoadBand);
   };
 
+  const toggleAiAnalysis = async () => {
+    setAiToggleLoading(true);
+    try {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL || ''}/api/powertrain-ai/toggle`);
+      if (response.data.success) {
+        // Immediately refresh powertrain status to show new AI state
+        await fetchPowertrainStatus();
+      } else {
+        console.error('Failed to toggle AI analysis:', response.data.error);
+      }
+    } catch (err) {
+      console.error('Failed to toggle AI analysis:', err);
+    }
+    setAiToggleLoading(false);
+  };
+
   // Auto-refresh setup
   useEffect(() => {
     // Initial load
@@ -182,6 +199,36 @@ function ReportsTab() {
     }
   };
 
+  const getAgentStateIcon = (agentState) => {
+    switch (agentState) {
+      case 'ACTIVE': return '🟢';
+      case 'IDLE': return '🟡';
+      case 'PAUSED': return '🔴';
+      case 'OFFLINE': return '⚫';
+      default: return '⚪';
+    }
+  };
+
+  const getAgentStateColor = (agentState) => {
+    switch (agentState) {
+      case 'ACTIVE': return '#28a745';
+      case 'IDLE': return '#fd7e14';
+      case 'PAUSED': return '#dc3545';
+      case 'OFFLINE': return '#6c757d';
+      default: return '#6c757d';
+    }
+  };
+
+  const getAgentStateText = (agentState) => {
+    switch (agentState) {
+      case 'ACTIVE': return 'Active';
+      case 'IDLE': return 'Idle';
+      case 'PAUSED': return 'Paused';
+      case 'OFFLINE': return 'Offline';
+      default: return 'Unknown';
+    }
+  };
+
   const formatTimestamp = (timestamp) => {
     if (!timestamp) return 'Unknown';
     const date = new Date(timestamp);
@@ -210,10 +257,11 @@ function ReportsTab() {
               <>🔴 <span style={{ color: '#dc3545' }}>PowertrainAgent Offline</span></>
             ) : powertrainStatus ? (
               <>
-                {getStatusIcon(powertrainStatus.alert_level)} 
-              <span style={{ color: getStatusColor(powertrainStatus.alert_level) }}>
-                PowertrainAgent Active ({powertrainStatus.alert_level})
+                {getAgentStateIcon(powertrainStatus.agent_state)} 
+              <span style={{ color: getAgentStateColor(powertrainStatus.agent_state) }}>
+                PowertrainAgent {getAgentStateText(powertrainStatus.agent_state)} ({powertrainStatus.alert_level})
               </span>
+              {powertrainStatus.heartbeat && <span style={{ fontSize: '0.8em', color: '#6c757d', marginLeft: '8px' }}>💓</span>}
               </>
             ) : (
               <>⚪ <span style={{ color: '#6c757d' }}>Loading...</span></>
@@ -249,6 +297,23 @@ function ReportsTab() {
             }}
           >
             {powertrainLoading ? '🔄 Analyzing...' : '🔄 Force Analysis'}
+          </button>
+
+          <button 
+            onClick={toggleAiAnalysis} 
+            disabled={aiToggleLoading || !powertrainStatus}
+            style={{ 
+              padding: '6px 12px', 
+              border: '1px solid #28a745', 
+              background: (powertrainStatus && powertrainStatus.ai_enabled) ? '#28a745' : '#6c757d', 
+              color: 'white', 
+              borderRadius: '4px',
+              cursor: (aiToggleLoading || !powertrainStatus) ? 'not-allowed' : 'pointer'
+            }}
+          >
+            {aiToggleLoading ? '⚙️ Switching...' : 
+             !powertrainStatus ? 'Loading...' :
+             (powertrainStatus.ai_enabled ? 'AI Analysis: ON' : 'AI Analysis: OFF')}
           </button>
 
           <span style={{ fontSize: '0.9em', color: '#6c757d' }}>
@@ -291,6 +356,18 @@ function ReportsTab() {
 
               {/* Key Metrics */}
               <div style={{ display: 'grid', gap: '8px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span>Agent State:</span>
+                  <strong style={{ color: getAgentStateColor(powertrainStatus.agent_state) }}>
+                    {getAgentStateIcon(powertrainStatus.agent_state)} {getAgentStateText(powertrainStatus.agent_state)}
+                  </strong>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span>AI Analysis:</span>
+                  <strong style={{ color: powertrainStatus.ai_enabled ? '#28a745' : '#6c757d' }}>
+                    {powertrainStatus.ai_enabled ? '✅ Enabled' : '❌ Disabled'}
+                  </strong>
+                </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <span>Load Band:</span>
                   <strong>{powertrainStatus.load_band}</strong>

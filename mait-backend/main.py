@@ -366,6 +366,7 @@ async def get_powertrain_status():
             # Store tags (they appear in every row)
             latest_data['alert_level'] = row.get('alert_level', 'UNKNOWN')
             latest_data['load_band'] = row.get('load_band', 'unknown')
+            latest_data['agent_state'] = row.get('agent_state', 'UNKNOWN')
             latest_data['_time'] = row.get('_time')
         
         # Handle timestamp conversion safely
@@ -375,10 +376,57 @@ async def get_powertrain_status():
         else:
             timestamp_str = str(timestamp_value).replace("T", " ").replace("Z", "")
         
+        # Check if data is too old (might indicate agent is truly offline)
+        try:
+            import time
+            if hasattr(timestamp_value, 'timestamp'):
+                data_age_seconds = time.time() - timestamp_value.timestamp()
+            else:
+                # Parse timestamp string if needed
+                from datetime import datetime
+                dt = datetime.fromisoformat(str(timestamp_value).replace('Z', '+00:00'))
+                data_age_seconds = (datetime.now(dt.tzinfo) - dt).total_seconds()
+            
+            # If data is more than 10 minutes old, consider agent offline
+            if data_age_seconds > 600:
+                agent_status = "OFFLINE"
+            else:
+                agent_status = latest_data.get("agent_state", "UNKNOWN")
+        except:
+            agent_status = latest_data.get("agent_state", "UNKNOWN")
+        
+        # Get current AI toggle status - prioritize powertrain_config for immediate UI feedback
+        current_ai_enabled = latest_data.get("ai_enabled", True)  # Default from analysis
+        
+        try:
+            # Check powertrain_config for the latest toggle state to ensure immediate UI feedback
+            config_query = f'''
+            from(bucket: "{INFLUXDB_BUCKET}")
+              |> range(start: -7d)
+              |> filter(fn: (r) => r._measurement == "powertrain_config" and r._field == "ai_enabled")
+              |> last()
+            '''
+            
+            config_result = query_api.query_data_frame(org=INFLUXDB_ORG, query=config_query)
+            
+            if isinstance(config_result, list):
+                config_result = pd.concat(config_result, ignore_index=True)
+            
+            if not config_result.empty:
+                # Use the latest toggle setting for immediate UI feedback
+                current_ai_enabled = bool(config_result.iloc[0]['_value'])
+                
+        except Exception:
+            # Keep the default from analysis if config query fails
+            pass
+        
         return {
             "timestamp": timestamp_str,
             "alert_level": latest_data.get("alert_level", "UNKNOWN"),
             "load_band": latest_data.get("load_band", "unknown"),
+            "agent_state": agent_status,
+            "ai_enabled": current_ai_enabled,
+            "heartbeat": latest_data.get("heartbeat", False),
             "engine_speed": latest_data.get("engine_speed", 0),
             "engine_oil_pressure": latest_data.get("engine_oil_pressure", 0),
             "generator_power": latest_data.get("generator_power", 0),
@@ -563,4 +611,90 @@ async def get_powertrain_memory(knowledge_type: str = "all", days: int = 7, load
         
     except Exception as e:
         return {"error": f"Failed to get powertrain memory: {str(e)}"}
+
+@app.get("/api/powertrain-ai/status")
+async def get_powertrain_ai_status():
+    """Get current PowertrainAgent AI analysis status"""
+    query_api = influx_client.query_api()
+    
+    # Check for stored AI status in InfluxDB
+    query = f'''
+    from(bucket: "{INFLUXDB_BUCKET}")
+      |> range(start: -7d)
+      |> filter(fn: (r) => r._measurement == "powertrain_config" and r._field == "ai_enabled")
+      |> last()
+    '''
+    
+    try:
+        result = query_api.query_data_frame(org=INFLUXDB_ORG, query=query)
+        
+        if isinstance(result, list):
+            result = pd.concat(result, ignore_index=True)
+        
+        if not result.empty:
+            ai_enabled = bool(result.iloc[0]['_value'])
+            last_updated = str(result.iloc[0]['_time'])
+            return {
+                "ai_enabled": ai_enabled,
+                "source": "database",
+                "last_updated": last_updated
+            }
+        else:
+            # Fallback to environment variable
+            env_value = os.getenv('POWERTRAIN_AI_ENABLED', 'true')
+            ai_enabled = env_value.lower() == 'true'
+            return {
+                "ai_enabled": ai_enabled,
+                "source": "environment",
+                "last_updated": None
+            }
+        
+    except Exception as e:
+        # Fallback to environment variable on error
+        env_value = os.getenv('POWERTRAIN_AI_ENABLED', 'true')
+        ai_enabled = env_value.lower() == 'true'
+        return {
+            "ai_enabled": ai_enabled,
+            "source": "environment_fallback",
+            "error": str(e)
+        }
+
+@app.post("/api/powertrain-ai/toggle")
+async def toggle_powertrain_ai():
+    """Toggle PowertrainAgent AI analysis status"""
+    from influxdb_client import Point
+    from influxdb_client.client.write_api import SYNCHRONOUS
+    
+    try:
+        # Get current status
+        current_status = await get_powertrain_ai_status()
+        current_ai_enabled = current_status["ai_enabled"]
+        
+        # Toggle the status
+        new_ai_enabled = not current_ai_enabled
+        
+        # Store new status in InfluxDB
+        write_api = influx_client.write_api(write_options=SYNCHRONOUS)
+        
+        point = Point("powertrain_config") \
+            .field("ai_enabled", new_ai_enabled) \
+            .field("updated_by", "frontend_toggle") \
+            .time(datetime.utcnow())
+        
+        write_api.write(bucket=INFLUXDB_BUCKET, org=INFLUXDB_ORG, record=point)
+        
+        return {
+            "success": True,
+            "ai_enabled": new_ai_enabled,
+            "previous_state": current_ai_enabled,
+            "updated_at": datetime.utcnow().isoformat(),
+            "message": f"AI analysis {'enabled' if new_ai_enabled else 'disabled'}"
+        }
+        
+    except Exception as e:
+        return {
+            "success": False,
+            "error": f"Failed to toggle AI status: {str(e)}"
+        }
+
 

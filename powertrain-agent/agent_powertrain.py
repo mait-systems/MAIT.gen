@@ -189,8 +189,11 @@ class PowertrainAgent:
             # Step 2: Retrieve relevant historical context
             memory_context = self.memory_manager.get_analysis_context(current_metrics)
             
-            # Step 3: AI Analysis (with toggle control)
-            if self.ai_analysis_enabled:
+            # Step 3: AI Analysis (with dynamic toggle control)
+            # Check AI status dynamically each cycle
+            current_ai_enabled = self._check_ai_status_dynamic()
+            
+            if current_ai_enabled:
                 self.logger.info("AI analysis enabled - performing full analysis")
                 # Build memory-enhanced prompt
                 analysis_prompt = self.prompt_builder.build_analysis_prompt(
@@ -203,6 +206,9 @@ class PowertrainAgent:
                 # Basic analysis without OpenAI API call
                 ai_analysis = self._generate_basic_analysis(current_metrics)
             
+            # Step 4: Determine agent state
+            agent_state = self._get_current_agent_state(current_metrics)
+            
             # Step 5: Process and store results
             analysis_result = {
                 'timestamp': current_metrics.timestamp.isoformat(),
@@ -210,7 +216,9 @@ class PowertrainAgent:
                 'memory_context': memory_context,
                 'ai_analysis': ai_analysis,
                 'alert_level': self._extract_alert_level(ai_analysis),
-                'recommendations': self._extract_recommendations(ai_analysis)
+                'recommendations': self._extract_recommendations(ai_analysis),
+                'agent_state': agent_state,
+                'ai_enabled': current_ai_enabled
             }
             
             # Step 6: Store analysis results and update AI memory
@@ -270,6 +278,44 @@ class PowertrainAgent:
         
         return recommendations[:5]  # Limit to top 5 recommendations
     
+    def _check_ai_status_dynamic(self) -> bool:
+        """Check AI analysis status dynamically from database, fallback to environment variable"""
+        try:
+            # Query InfluxDB for latest AI status
+            query = f'''
+            from(bucket: "{self.config['influxdb']['bucket']}")
+              |> range(start: -7d)
+              |> filter(fn: (r) => r._measurement == "powertrain_config" and r._field == "ai_enabled")
+              |> last()
+            '''
+            
+            result = self.influx_manager.query_api.query_data_frame(
+                org=self.config['influxdb']['org'], 
+                query=query
+            )
+            
+            # Handle potential list of DataFrames
+            if isinstance(result, list):
+                import pandas as pd
+                result = pd.concat(result, ignore_index=True)
+            
+            if not result.empty:
+                ai_enabled = bool(result.iloc[0]['_value'])
+                self.logger.debug(f"AI status from database: {ai_enabled}")
+                return ai_enabled
+            else:
+                # Fallback to environment variable
+                env_value = os.getenv('POWERTRAIN_AI_ENABLED', 'true')
+                ai_enabled = env_value.lower() == 'true'
+                self.logger.debug(f"AI status from environment (no database entry): {ai_enabled}")
+                return ai_enabled
+                
+        except Exception as e:
+            # Fallback to environment variable on error
+            self.logger.warning(f"Failed to check AI status from database, using environment: {e}")
+            env_value = os.getenv('POWERTRAIN_AI_ENABLED', 'true')
+            return env_value.lower() == 'true'
+
     def _generate_basic_analysis(self, current_metrics: PowertrainMetrics) -> str:
         """Generate basic analysis without OpenAI API call"""
         status = "STOPPED" if current_metrics.engine_speed == 0 else "RUNNING"
@@ -292,6 +338,58 @@ Basic monitoring active - enable AI analysis for detailed insights.
 **Alert Level**: OK
 """
         return basic_analysis
+    
+    def _get_current_agent_state(self, current_metrics: PowertrainMetrics) -> str:
+        """Determine the current agent state based on engine status and agent activity"""
+        if not self.agent_active:
+            return "PAUSED"
+        elif current_metrics.engine_speed == 0:
+            if self.engine_idle_start_time is not None:
+                idle_duration = datetime.now() - self.engine_idle_start_time
+                if idle_duration.total_seconds() > 300:  # 5 minutes
+                    return "IDLE"
+            return "IDLE"
+        else:
+            return "ACTIVE"
+    
+    def _send_heartbeat(self):
+        """Send heartbeat when agent is paused to communicate state"""
+        try:
+            # Get minimal data for heartbeat
+            live_data = self.influx_manager.get_latest_powertrain_data()
+            if not live_data:
+                live_data = {}
+            
+            # Create minimal metrics for heartbeat
+            heartbeat_metrics = PowertrainMetrics(
+                timestamp=datetime.now(),
+                engine_speed=live_data.get('Engine_Speed', 0),
+                engine_run_speed=live_data.get('Engine_Run_Speed', 0),
+                engine_oil_pressure=live_data.get('Engine_Oil_Pressure', 0),
+                generator_total_real_power=live_data.get('Generator_Total_Real_Power', 0),
+                engine_coolant_temperature=live_data.get('Engine_Coolant_Temperature', 0),
+                load_band=self.get_load_band(live_data.get('Generator_Total_Real_Power', 0))
+            )
+            
+            # Create heartbeat analysis result
+            heartbeat_result = {
+                'timestamp': heartbeat_metrics.timestamp.isoformat(),
+                'current_metrics': heartbeat_metrics.to_dict(),
+                'memory_context': {},
+                'ai_analysis': '## AGENT PAUSED\n\nPowertrainAgent is paused due to extended engine idle period. Monitoring for engine activity to resume analysis.',
+                'alert_level': 'INFO',
+                'recommendations': [],
+                'agent_state': 'PAUSED',
+                'ai_enabled': self.ai_analysis_enabled,
+                'heartbeat': True
+            }
+            
+            # Store heartbeat
+            self.result_logger.store_analysis_result(heartbeat_result)
+            self.logger.debug("Heartbeat sent - agent state: PAUSED")
+            
+        except Exception as e:
+            self.logger.error(f"Failed to send heartbeat: {e}")
     
     def run_analysis_cycle(self) -> bool:
         """Run a single analysis cycle"""
@@ -318,11 +416,20 @@ Basic monitoring active - enable AI analysis for detailed insights.
         """Run PowertrainAgent continuously with smart pause/resume logic"""
         self.logger.info(f"Starting continuous monitoring (interval: {interval_minutes} minutes)")
         
+        last_heartbeat = datetime.now()
+        heartbeat_interval = 180  # 3 minutes
+        
         while True:
             try:
                 # Check if agent should be active
                 if not self.agent_active:
                     self.logger.info("Agent paused - waiting for engine activity...")
+                    
+                    # Send heartbeat every 3 minutes when paused
+                    if (datetime.now() - last_heartbeat).total_seconds() > heartbeat_interval:
+                        self._send_heartbeat()
+                        last_heartbeat = datetime.now()
+                    
                     time.sleep(30)  # Check every 30 seconds when paused
                     
                     # Check if engine has resumed

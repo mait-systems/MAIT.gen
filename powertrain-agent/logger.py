@@ -71,6 +71,7 @@ class PowertrainLogger:
             point = Point("powertrain_analysis") \
                 .tag("load_band", current_metrics.get('load_band', 'unknown')) \
                 .tag("alert_level", alert_level) \
+                .tag("agent_state", analysis_result.get('agent_state', 'UNKNOWN')) \
                 .field("engine_speed", current_metrics.get('engine_speed', 0)) \
                 .field("engine_run_speed", current_metrics.get('engine_run_speed', 0)) \
                 .field("engine_oil_pressure", current_metrics.get('engine_oil_pressure', 0)) \
@@ -78,6 +79,8 @@ class PowertrainLogger:
                 .field("coolant_temperature", current_metrics.get('engine_coolant_temperature', 0)) \
                 .field("ai_analysis", analysis_result.get('ai_analysis', '')) \
                 .field("analysis_summary", self._extract_summary(analysis_result.get('ai_analysis', ''))) \
+                .field("ai_enabled", analysis_result.get('ai_enabled', True)) \
+                .field("heartbeat", analysis_result.get('heartbeat', False)) \
                 .time(timestamp)
             
             self.influx_manager.write_api.write(
