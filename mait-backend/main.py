@@ -506,21 +506,27 @@ async def get_powertrain_baselines(load_band: str = "0-20%", days: int = 30):
         return {"error": f"Failed to get powertrain baselines: {str(e)}"}
 
 @app.get("/api/powertrain-memory")
-async def get_powertrain_memory(knowledge_type: str = "all", days: int = 7):
+async def get_powertrain_memory(knowledge_type: str = "all", days: int = 7, load_band: str = None):
     """Get PowertrainAgent accumulated memory/insights"""
     query_api = influx_client.query_api()
     
-    if knowledge_type == "all":
-        filter_clause = 'r._measurement == "powertrain_ai_memory"'
-    else:
-        filter_clause = f'r._measurement == "powertrain_ai_memory" and r.knowledge_type == "{knowledge_type}"'
+    # Build filter clause
+    filter_parts = ['r._measurement == "powertrain_ai_memory"']
+    
+    if knowledge_type != "all":
+        filter_parts.append(f'r.knowledge_type == "{knowledge_type}"')
+    
+    if load_band:
+        filter_parts.append(f'r.load_band == "{load_band}"')
+    
+    filter_clause = ' and '.join(filter_parts)
     
     query = f'''
     from(bucket: "{INFLUXDB_BUCKET}")
       |> range(start: -{days}d)
       |> filter(fn: (r) => {filter_clause})
       |> sort(columns: ["_time"], desc: true)
-      |> limit(n: 20)
+      |> limit(n: 60)
     '''
     
     try:
@@ -533,17 +539,28 @@ async def get_powertrain_memory(knowledge_type: str = "all", days: int = 7):
             return {"message": "No memory data found", "insights": []}
         
         insights = []
-        for _, row in result.iterrows():
-            insight = {
-                "timestamp": str(row.get("_time", "")),
-                "knowledge_type": row.get("knowledge_type", "unknown"),
-                "confidence": row.get("confidence", "medium"),
-                "insight_text": row.get("insight_text", ""),
-                "validation_status": row.get("validation_status", "pending")
-            }
-            insights.append(insight)
+        
+        # Filter for insight_text records specifically
+        insight_text_records = result[result['_field'] == 'insight_text']
+        
+        if not insight_text_records.empty:
+            for _, row in insight_text_records.iterrows():
+                value = row['_value']
+                insight = {
+                    "timestamp": str(row["_time"]),
+                    "knowledge_type": str(row["knowledge_type"]), 
+                    "confidence": str(row["confidence"]),
+                    "insight_text": str(value),
+                    "validation_status": str(row["validation_status"])
+                }
+                insights.append(insight)
+        
+        # Sort by timestamp descending
+        insights.sort(key=lambda x: x["timestamp"], reverse=True)
+        insights = insights[:20]
         
         return {"insights": insights, "total_count": len(insights)}
         
     except Exception as e:
         return {"error": f"Failed to get powertrain memory: {str(e)}"}
+

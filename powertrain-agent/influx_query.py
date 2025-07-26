@@ -342,7 +342,7 @@ class InfluxQueryManager:
             self.logger.error(f"Failed to store event memory: {e}")
     
     def store_ai_memory(self, knowledge_type: str, insight_text: str, 
-                       supporting_metrics: dict, confidence: str = "medium"):
+                       supporting_metrics: dict, confidence: str = "medium", load_band: str = "unknown"):
         """
         Store AI-generated insights for memory persistence
         
@@ -351,11 +351,13 @@ class InfluxQueryManager:
             insight_text: AI-generated insight text
             supporting_metrics: Metrics that support this insight
             confidence: Confidence level (low, medium, high)
+            load_band: Current generator load band for filtering
         """
         try:
             point = Point("powertrain_ai_memory") \
                 .tag("knowledge_type", knowledge_type) \
                 .tag("confidence", confidence) \
+                .tag("load_band", load_band) \
                 .tag("validation_status", "pending") \
                 .field("insight_text", insight_text) \
                 .field("supporting_metrics", str(supporting_metrics)) \

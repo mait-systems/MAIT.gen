@@ -18,7 +18,7 @@ function ReportsTab() {
   const [isBootstrapping, setIsBootstrapping] = useState(false);
   const [powertrainLoading, setPowertrainLoading] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
-  const [selectedLoadBand, setSelectedLoadBand] = useState('0-20%');
+  const [selectedLoadBand, setSelectedLoadBand] = useState('all');
   const [lastRefresh, setLastRefresh] = useState(new Date());
 
   // Auto-refresh interval refs
@@ -73,9 +73,13 @@ function ReportsTab() {
     }
   };
 
-  const fetchPowertrainMemory = async () => {
+  const fetchPowertrainMemory = async (loadBand = null) => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL || ''}/api/powertrain-memory?days=7`);
+      let url = `${process.env.REACT_APP_API_URL || ''}/api/powertrain-memory?days=7`;
+      if (loadBand && loadBand !== 'all') {
+        url += `&load_band=${encodeURIComponent(loadBand)}`;
+      }
+      const response = await axios.get(url);
       setPowertrainMemory(response.data);
     } catch (err) {
       console.error('Failed to fetch PowertrainAgent memory:', err);
@@ -123,6 +127,12 @@ function ReportsTab() {
       console.error('Bootstrap failed:', err);
       setIsBootstrapping(false);
     }
+  };
+
+  const handleLoadBandChange = async (newLoadBand) => {
+    setSelectedLoadBand(newLoadBand);
+    // Fetch insights specific to the selected load band
+    await fetchPowertrainMemory(newLoadBand === 'all' ? null : newLoadBand);
   };
 
   // Auto-refresh setup
@@ -390,7 +400,11 @@ function ReportsTab() {
                             {insight.confidence}
                           </span>
                         </div>
-                        <div>{insight.insight_text}</div>
+                        <div>
+                          {insight.insight_text && insight.insight_text.trim() 
+                            ? insight.insight_text 
+                            : "Insight analysis in progress..."}
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -408,7 +422,7 @@ function ReportsTab() {
                 </label>
                 <select 
                   value={selectedLoadBand} 
-                  onChange={(e) => setSelectedLoadBand(e.target.value)}
+                  onChange={(e) => handleLoadBandChange(e.target.value)}
                   style={{ 
                     width: '100%', 
                     padding: '6px', 
@@ -416,6 +430,7 @@ function ReportsTab() {
                     borderRadius: '4px' 
                   }}
                 >
+                  <option value="all">All Load Bands</option>
                   <option value="0%">0% (Stopped)</option>
                   <option value="0-20%">0-20% (Light Load)</option>
                   <option value="20-40%">20-40% (Moderate Load)</option>

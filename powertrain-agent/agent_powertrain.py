@@ -179,8 +179,14 @@ class PowertrainAgent:
             }
             
             # Step 6: Store analysis results and update AI memory
+            self.logger.info("About to store analysis result and update AI memory")
             self.result_logger.store_analysis_result(analysis_result)
-            self.memory_manager.update_ai_memory(analysis_result)
+            self.logger.info("About to call update_ai_memory")
+            try:
+                self.memory_manager.update_ai_memory(analysis_result)
+                self.logger.info("Finished updating AI memory successfully")
+            except Exception as e:
+                self.logger.error(f"Error in update_ai_memory: {e}", exc_info=True)
             
             self.logger.info(f"Analysis completed with alert level: {analysis_result['alert_level']}")
             

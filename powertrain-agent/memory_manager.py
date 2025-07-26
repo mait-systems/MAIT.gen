@@ -506,6 +506,8 @@ class PowertrainMemoryManager:
         """
         try:
             ai_analysis = analysis_result.get('ai_analysis', '')
+            current_metrics = analysis_result.get('current_metrics', {})
+            load_band = current_metrics.get('load_band', 'unknown')
             
             # Extract key insights from AI analysis
             insights = self._extract_insights_from_analysis(ai_analysis)
@@ -515,34 +517,71 @@ class PowertrainMemoryManager:
                     knowledge_type=insight['type'],
                     insight_text=insight['text'],
                     supporting_metrics=insight['metrics'],
-                    confidence=insight['confidence']
+                    confidence=insight['confidence'],
+                    load_band=load_band
                 )
                 
         except Exception as e:
-            self.logger.error(f"Failed to update AI memory: {e}")
+            self.logger.error(f"Failed to update AI memory: {e}", exc_info=True)
     
     def _extract_insights_from_analysis(self, ai_analysis: str) -> List[dict]:
         """Extract structured insights from AI analysis text"""
         insights = []
         
-        # Simple pattern matching for insights
-        lines = ai_analysis.split('\n')
-        for line in lines:
-            line = line.strip().lower()
+        try:
+            if not ai_analysis or len(ai_analysis.strip()) < 10:
+                return insights
             
-            if 'trend' in line and ('oil' in line or 'pressure' in line):
+            # Handle both \n and \r\n line endings
+            ai_analysis = ai_analysis.replace('\r\n', '\n').replace('\r', '\n')
+            lines = ai_analysis.split('\n')
+            
+            # Extract any line that looks like it contains useful information
+            meaningful_lines = []
+            for line in lines:
+                clean_line = line.strip()
+                if (len(clean_line) > 30 and  # Long enough to be meaningful
+                    not clean_line.startswith('#') and  # Not a header
+                    not clean_line.startswith('**') and  # Not just bold formatting
+                    (':' in clean_line or  # Contains descriptions
+                     any(word in clean_line.lower() for word in ['oil', 'pressure', 'temperature', 'rpm', 'engine', 'generator', 'normal', 'stable', 'concern', 'alert']))):
+                    meaningful_lines.append(clean_line)
+            
+            # Create insights from meaningful lines
+            for i, line in enumerate(meaningful_lines[:3]):  # Take first 3 (plus our test insight)
+                # Determine type based on content
+                insight_type = 'operational'
+                if any(word in line.lower() for word in ['trend', 'increasing', 'decreasing', 'rising', 'falling']):
+                    insight_type = 'trend'
+                elif any(word in line.lower() for word in ['pattern', 'typical', 'usually', 'normally']):
+                    insight_type = 'pattern'
+                
                 insights.append({
-                    'type': 'trend',
+                    'type': insight_type,
                     'text': line,
-                    'metrics': {},
-                    'confidence': 'medium'
+                    'metrics': {'line_number': i+1, 'source': 'simplified_extraction'},
+                    'confidence': 'high'
                 })
-            elif 'pattern' in line or 'recurring' in line:
+            
+            # Final fallback - if we still have no insights, use first 2 non-empty lines
+            if len(insights) == 0 and ai_analysis:
+                fallback_lines = [line.strip() for line in lines if len(line.strip()) > 20][:2]
+                for i, line in enumerate(fallback_lines):
+                    insights.append({
+                        'type': 'general',
+                        'text': line,
+                        'metrics': {'source': 'fallback_extraction', 'line': i+1},
+                        'confidence': 'medium'
+                    })
+            
+        except Exception as e:
+            # Emergency fallback - just use the first 200 characters of the analysis
+            if ai_analysis and len(insights) == 0:
                 insights.append({
-                    'type': 'pattern',
-                    'text': line,
-                    'metrics': {},
-                    'confidence': 'medium'
+                    'type': 'analysis',
+                    'text': ai_analysis[:150] + "..." if len(ai_analysis) > 150 else ai_analysis,
+                    'metrics': {'source': 'emergency_fallback'},
+                    'confidence': 'low'
                 })
         
-        return insights[:3]  # Limit to top 3 insights
+        return insights[:5]  # Limit to top 5 insights
