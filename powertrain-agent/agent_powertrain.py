@@ -60,7 +60,14 @@ class PowertrainAgent:
         self.prompt_builder = MemoryEnhancedPromptBuilder(self.config)
         self.result_logger = PowertrainLogger(self.config)
         
-        self.logger.info("PowertrainAgent initialized successfully")
+        # Control and state tracking
+        self.ai_analysis_enabled = os.getenv('POWERTRAIN_AI_ENABLED', 'true').lower() == 'true'
+        self.idle_timeout_minutes = int(os.getenv('POWERTRAIN_IDLE_TIMEOUT', '5'))
+        self.engine_idle_start_time = None
+        self.agent_active = True
+        
+        self.logger.info(f"PowertrainAgent initialized - AI Enabled: {self.ai_analysis_enabled}, "
+                        f"Idle Timeout: {self.idle_timeout_minutes}min")
     
     def _load_config(self, config_path: str) -> dict:
         """Load configuration from YAML file"""
@@ -118,7 +125,7 @@ class PowertrainAgent:
             return "80-100%"
     
     def collect_live_metrics(self) -> Optional[PowertrainMetrics]:
-        """Collect current powertrain metrics from InfluxDB"""
+        """Collect current powertrain metrics from InfluxDB with smart idle detection"""
         try:
             live_data = self.influx_manager.get_latest_powertrain_data()
             
@@ -126,11 +133,33 @@ class PowertrainAgent:
                 self.logger.warning("No live data available")
                 return None
             
+            engine_speed = live_data.get('Engine_Speed', 0)
             load_band = self.get_load_band(live_data.get('Generator_Total_Real_Power', 0))
+            
+            # Smart idle detection logic
+            if engine_speed == 0:
+                # Engine is idle
+                if self.engine_idle_start_time is None:
+                    self.engine_idle_start_time = datetime.now()
+                    self.logger.info("Engine became idle, starting idle timer")
+                
+                # Check if idle timeout exceeded
+                idle_duration = datetime.now() - self.engine_idle_start_time
+                if idle_duration.total_seconds() > (self.idle_timeout_minutes * 60):
+                    self.logger.info(f"Engine idle for {idle_duration.total_seconds()/60:.1f} minutes - pausing agent")
+                    self.agent_active = False
+                    return None  # Triggers agent pause
+            else:
+                # Engine is running
+                if self.engine_idle_start_time is not None:
+                    idle_duration = datetime.now() - self.engine_idle_start_time
+                    self.logger.info(f"Engine resumed after {idle_duration.total_seconds()/60:.1f} minutes idle")
+                    self.engine_idle_start_time = None
+                    self.agent_active = True
             
             metrics = PowertrainMetrics(
                 timestamp=datetime.now(),
-                engine_speed=live_data.get('Engine_Speed', 0),
+                engine_speed=engine_speed,
                 engine_run_speed=live_data.get('Engine_Run_Speed', 0),
                 engine_oil_pressure=live_data.get('Engine_Oil_Pressure', 0),
                 generator_total_real_power=live_data.get('Generator_Total_Real_Power', 0),
@@ -160,13 +189,19 @@ class PowertrainAgent:
             # Step 2: Retrieve relevant historical context
             memory_context = self.memory_manager.get_analysis_context(current_metrics)
             
-            # Step 3: Build memory-enhanced prompt
-            analysis_prompt = self.prompt_builder.build_analysis_prompt(
-                current_metrics, memory_context
-            )
-            
-            # Step 4: Get AI analysis
-            ai_analysis = self.prompt_builder.get_ai_analysis(analysis_prompt)
+            # Step 3: AI Analysis (with toggle control)
+            if self.ai_analysis_enabled:
+                self.logger.info("AI analysis enabled - performing full analysis")
+                # Build memory-enhanced prompt
+                analysis_prompt = self.prompt_builder.build_analysis_prompt(
+                    current_metrics, memory_context
+                )
+                # Get AI analysis
+                ai_analysis = self.prompt_builder.get_ai_analysis(analysis_prompt)
+            else:
+                self.logger.info("AI analysis disabled - using basic analysis")
+                # Basic analysis without OpenAI API call
+                ai_analysis = self._generate_basic_analysis(current_metrics)
             
             # Step 5: Process and store results
             analysis_result = {
@@ -235,6 +270,29 @@ class PowertrainAgent:
         
         return recommendations[:5]  # Limit to top 5 recommendations
     
+    def _generate_basic_analysis(self, current_metrics: PowertrainMetrics) -> str:
+        """Generate basic analysis without OpenAI API call"""
+        status = "STOPPED" if current_metrics.engine_speed == 0 else "RUNNING"
+        
+        basic_analysis = f"""## BASIC POWERTRAIN STATUS (AI Analysis Disabled)
+
+**Overall Status**: {status}
+**Load Band**: {current_metrics.load_band}
+
+## Key Metrics
+- **Engine Speed**: {current_metrics.engine_speed} RPM
+- **Oil Pressure**: {current_metrics.engine_oil_pressure} kPa  
+- **Generator Power**: {current_metrics.generator_total_real_power} kW
+- **Coolant Temperature**: {current_metrics.engine_coolant_temperature}°C
+
+## Assessment
+Generator is currently {"in standby mode" if status == "STOPPED" else "operating normally"}. 
+Basic monitoring active - enable AI analysis for detailed insights.
+
+**Alert Level**: OK
+"""
+        return basic_analysis
+    
     def run_analysis_cycle(self) -> bool:
         """Run a single analysis cycle"""
         try:
@@ -257,15 +315,34 @@ class PowertrainAgent:
             return False
     
     def run_continuous(self, interval_minutes: int = 5):
-        """Run PowertrainAgent continuously"""
+        """Run PowertrainAgent continuously with smart pause/resume logic"""
         self.logger.info(f"Starting continuous monitoring (interval: {interval_minutes} minutes)")
         
         while True:
             try:
+                # Check if agent should be active
+                if not self.agent_active:
+                    self.logger.info("Agent paused - waiting for engine activity...")
+                    time.sleep(30)  # Check every 30 seconds when paused
+                    
+                    # Check if engine has resumed
+                    live_data = self.influx_manager.get_latest_powertrain_data()
+                    if live_data and live_data.get('Engine_Speed', 0) > 0:
+                        self.logger.info("Engine activity detected - resuming agent")
+                        self.agent_active = True
+                        self.engine_idle_start_time = None
+                    continue
+                
                 cycle_start = time.time()
                 
                 # Run analysis cycle
                 success = self.run_analysis_cycle()
+                
+                # If analysis cycle returns False due to no data or idle timeout, continue loop
+                if not success:
+                    self.logger.warning("Analysis cycle skipped - checking again in 1 minute")
+                    time.sleep(60)
+                    continue
                 
                 cycle_duration = time.time() - cycle_start
                 self.logger.info(f"Analysis cycle took {cycle_duration:.2f} seconds")
