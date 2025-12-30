@@ -6,14 +6,14 @@
 ## Table of Contents
 
 1. [System Overview](#system-overview)
-2. [Architecture](#architecture)
-3. [Hardware Requirements](#hardware-requirements)
-4. [Hardware Setup](#hardware-setup)
-5. [Software Installation](#software-installation)
-6. [Configuration](#configuration)
-7. [Operation](#operation)
-8. [Troubleshooting](#troubleshooting)
-9. [Support and Contact](#support)
+2. [Architecture](#System-architecture)
+3. [Quick Dash Preview](#quick-dash-preview)
+4. [Hardware Requirements](#requirements)
+5. [Host Setup](#Host-Setup)
+6. [Needed Software Installation](#software-installation)
+6. [MAIT System Installation](#3-mait-system-installation)
+7. [Troubleshooting](#troubleshooting)
+8. [Support & Contact](#support--contact)
 
 ---
 
