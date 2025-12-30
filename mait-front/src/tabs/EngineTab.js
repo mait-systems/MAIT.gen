@@ -9,7 +9,8 @@ function EngineTab() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get('/api/live-stats');
+        const baseUrl = process.env.REACT_APP_API_URL || '';
+        const res = await axios.get(`${baseUrl}/api/live-stats`);
         setData(res.data);
       } catch (e) {
         console.error('Error fetching engine data', e);

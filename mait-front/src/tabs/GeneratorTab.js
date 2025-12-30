@@ -32,6 +32,12 @@ function GeneratorTab() {
     </>
   );
 
+  const ratingValue = data['Genset_kW_Rating'] != null ? Number(data['Genset_kW_Rating']) : null;
+  const realPowerPercent = data['Generator_Total_Real_Power'] != null ? Number(data['Generator_Total_Real_Power']) : null;
+  const powerOutputKw = ratingValue != null && realPowerPercent != null
+    ? (realPowerPercent / 100) * ratingValue
+    : null;
+
   return (
     <div className="generator-grid">
       {renderSection('Voltages, Line to Line', [
@@ -55,8 +61,8 @@ function GeneratorTab() {
       {renderSection('Power', [
         { label: 'Real Total', value: data['Generator_Total_Real_Power'], unit: '%' },
         { label: 'Apparent Total', value: data['Generator_Apparent_Power'], unit: '%' },
-        { label: 'Reactive Total', value: data['Generator_Reactive_Power'], unit: '%' },
-        { label: 'Power Factor Avg', value: data['Generator_Power_Factor_Average'] },
+        { label: 'Power Output', value: powerOutputKw != null ? powerOutputKw.toFixed(1) : null, unit: 'kW' },
+        { label: 'Power Rating', value: ratingValue != null ? ratingValue.toFixed(1) : null, unit: 'kW' },
       ])}
     </div>
   );
@@ -67,11 +73,10 @@ function MetricCard({ label, value, unit }) {
     <div className="metric-card">
       <div className="metric-label">{label}</div>
       <div className="metric-value">
-        {value !== undefined ? `${value} ${unit || ''}` : '—'}
+        {value !== undefined && value !== null && value !== '' ? `${value}${unit ? ` ${unit}` : ''}` : '—'}
       </div>
     </div>
   );
 }
 
 export default GeneratorTab;
-

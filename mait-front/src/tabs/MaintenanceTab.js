@@ -23,7 +23,7 @@ function MaintenanceTab() {
 
   const renderSection = (title, metrics) => (
     <>
-      <h3>{title}</h3>
+      <h3 style={{ textAlign: 'center' }}>{title}</h3>
       <div className="metrics-grid">
         {metrics.map((m) => (
           <MetricCard key={m.label} {...m} />

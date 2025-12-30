@@ -27,6 +27,30 @@ from logging.handlers import RotatingFileHandler
 # Global variables
 FIELD_TYPES = {}
 
+# Decision-Maker 3500 flags certain raw register values to indicate "unknown" data.
+# These constants capture the documented ranges so we can discard bad readings before
+# they appear as spikes (e.g., Apparent Power jumping to ~655%).
+INVALID_REGISTER_FLAGS = {
+    0xFFC0,  # Unsupported register flag
+}
+
+INVALID_REGISTER_FLAG_RANGES = (
+    (0x7FE0, 0x7FFF),  # Signed INT unknown/invalid
+    (0xFFE0, 0xFFFF),  # Unsigned INT unknown/invalid
+)
+
+
+def is_invalid_register_flag(raw_value: int) -> bool:
+    """Return True when the 16-bit raw value matches a Decision-Maker invalid flag."""
+    if raw_value in INVALID_REGISTER_FLAGS:
+        return True
+
+    for start, end in INVALID_REGISTER_FLAG_RANGES:
+        if start <= raw_value <= end:
+            return True
+
+    return False
+
 def parse_arguments():
     """Parse command line arguments"""
     parser = argparse.ArgumentParser(description='Modbus Generator Monitor')
@@ -255,11 +279,22 @@ def read_register(client, name, register_info, engine_running, config, influxdb_
             
             if not result.isError():
                 raw_value = result.registers[0]
-                processed_value = (raw_value / register_info.get('scale', 1)) if 'scale' in register_info else raw_value
-                
+
+                if is_invalid_register_flag(raw_value):
+                    # Controller explicitly marked this reading as invalid. Avoid writing the raw
+                    # 65k-style flag so downstream consumers don’t display bogus spikes.
+                    if any(term in name for term in ['Total', 'Hours', 'Starts', 'Runtime', 'Number of']):
+                        logging.debug(f"Skipping {name} due to Decision-Maker invalid flag: {raw_value}")
+                        return f"{name}: Invalid"
+
+                    processed_value = 0
+                    logging.info(f"Corrected invalid register flag for {name}: raw={raw_value}, set to 0")
+                else:
+                    processed_value = (raw_value / register_info.get('scale', 1)) if 'scale' in register_info else raw_value
+
                 # If engine is not running or the value is anomalous, set non-cumulative values to 0
                 # Keep cumulative values (runtime, starts, etc.) as they are
-                if not engine_running and is_value_anomalous(name, processed_value, thresholds):
+                if is_value_anomalous(name, processed_value, thresholds):
                     if not any(term in name for term in ['Total', 'Hours', 'Starts', 'Runtime', 'Number of']):
                         processed_value = 0
                         logging.info(f"Corrected anomalous value for {name}: raw={raw_value}, set to 0")
@@ -282,6 +317,7 @@ EVENT_EXPIRY_POLLS = 3  # How many polls before we consider an event "cleared"
 def read_active_events(client, config, write_api, influxdb_bucket, influxdb_org):
     global SEEN_EVENTS
     events_cfg = config.get('events', {})
+    ignore_codes = events_cfg.get('ignore_codes', [])
     base_address = events_cfg.get('base_address')
     max_events = events_cfg.get('max_events', 7)
     event_map = events_cfg.get('map', {})
@@ -357,7 +393,7 @@ def read_active_events(client, config, write_api, influxdb_bucket, influxdb_org)
 
         # Write all active (non-expired) events
         for key, info in SEEN_EVENTS.items():
-            if info["remaining"] > 0:
+            if info["remaining"] > 0 and key not in ignore_codes:
                 try:
                     payload = info["payload"]
                     point = Point("generator_events") \

@@ -1,0 +1,125 @@
+# Generator Configuration File - Gateway Edition (EXAMPLE)
+# Configuration for PowertrainAgent with Gateway integration
+# Copy this file to generator_config_gateway.yaml and update with your values
+
+# Site identification (set a unique value per generator)
+site_id: "your-site-id-here"
+
+# Generator specifications
+generator:
+  rated_power_kw: 150  # Generator rated power for load calculations (adjust for your generator)
+
+# Gateway configuration (NEW)
+gateway_url: "http://gateway:8003"
+gateway_api_key: "your-secure-gateway-api-key-64-chars"
+gateway_timeout: 30
+
+# Connection settings (unchanged)
+connection:
+  host: "192.168.127.254"  # Your Modbus TCP gateway IP
+  port: 502
+  unit_id: 1
+  retries: 5
+  retry_delay: 0.1
+
+# InfluxDB configuration (unchanged - still used for local data storage)
+influxdb:
+  url: "http://influxdb:8086"
+  token: "${INFLUXDB_TOKEN}"
+  org: "mlr"
+  bucket: "stbd_gen"
+
+# OpenAI configuration (REMOVED - now handled by gateway)
+# openai:
+#   api_key: "moved-to-gateway"
+
+# Logging configuration (unchanged)
+logging:
+  filename: "powertrain_agent_gateway.log"
+  level: "INFO"
+  format: "%(asctime)s [%(levelname)s] %(message)s"
+  datefmt: "%H:%M:%S"
+
+# Anomaly thresholds (unchanged - used for basic local checks)
+anomaly_thresholds:
+  temperature: 
+    max: 200
+    min: -50
+  pressure: 
+    max: 1000
+    min: 0
+  degrees: 
+    max: 360
+    min: -360
+  frequency: 
+    max: 100
+    min: 0
+  voltage: 
+    max: 600
+    min: 0
+  current: 
+    max: 10000
+    min: 0
+  percentage: 
+    max: 100
+    min: 0
+  power:
+    max: 1000000
+    min: 0
+  runtime_hours:
+    max: 100000
+    min: 0
+
+# Register mappings (unchanged - still needed for data collection)
+registers:
+  powertrain:
+    Engine_Speed:
+      address: 1000
+      type: "holding"
+      data_type: "uint16"
+      unit: "RPM"
+      description: "Engine speed"
+      
+    Engine_Run_Speed:
+      address: 1001
+      type: "holding"
+      data_type: "uint16"
+      unit: "RPM"
+      description: "Engine run speed setpoint"
+      
+    Engine_Oil_Pressure:
+      address: 1002
+      type: "holding"
+      data_type: "uint16"
+      unit: "kPa"
+      description: "Engine oil pressure"
+      
+    Engine_Coolant_Temperature:
+      address: 1003
+      type: "holding"
+      data_type: "uint16"
+      unit: "°C"
+      description: "Engine coolant temperature"
+      
+    Generator_Total_Real_Power:
+      address: 2000
+      type: "holding" 
+      data_type: "uint16"
+      unit: "kW"
+      description: "Total real power output"
+      
+    Battery_Voltage:
+      address: 3000
+      type: "holding"
+      data_type: "uint16"
+      unit: "V"
+      description: "Battery voltage"
+      scale: 0.1
+
+# Event mappings (unchanged - used for local event detection)
+events:
+  # Basic event codes for local monitoring
+  emergency_stop: 1001
+  low_oil_pressure: 1002
+  high_coolant_temp: 1003
+  overspeed: 1004

@@ -80,4 +80,138 @@
   color: #b30000;
 }
 
+/* Chart container default styles */
+.trend-chart-container {
+  margin-bottom: 20px;
+  padding: 15px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background: #fff;
+}
 
+/* Chart header default layout (desktop) */
+.trend-chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+/* Controls container default (desktop) */
+.trend-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* Select dropdowns default styling */
+.trend-select {
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: white;
+}
+
+/* Remove button default styling */
+.trend-remove-button {
+  padding: 6px 12px;
+  background: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.trend-remove-button:hover {
+  background: #5a6268;
+}
+
+/* Mobile responsiveness for Trends tab */
+@media (max-width: 768px) {
+  .dashboard-tab {
+    padding: 10px;
+  }
+
+  /* Chart container mobile styles */
+  .trend-chart-container {
+    padding: 8px;
+  }
+
+  /* Chart header mobile layout */
+  .trend-chart-header {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  /* Controls container for mobile */
+  .trend-controls {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  /* Select dropdowns mobile styling */
+  .trend-select {
+    width: 100%;
+    padding: 8px;
+    font-size: 14px;
+  }
+
+  /* Remove button mobile styling */
+  .trend-remove-button {
+    padding: 10px 15px;
+    min-height: 44px; /* Touch-friendly size */
+    width: 100%;
+  }
+
+  /* Dashboard container mobile adjustments */
+  .dashboard-container {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .dashboard-right {
+    width: 100%;
+    position: static;
+  }
+
+  /* Metrics grid mobile responsiveness */
+  .metrics-grid {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+  }
+
+  .metric-card {
+    padding: 12px;
+    font-size: 1em;
+  }
+
+  .metric-value {
+    font-size: 1.2em;
+  }
+}
+
+/* Tablet responsiveness */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .dashboard-right {
+    width: 250px;
+  }
+
+  .trend-chart-header {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .trend-controls {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .trend-select {
+    flex: 1;
+    min-width: 120px;
+  }
+}

@@ -1,17 +1,27 @@
 
 // src/tabs/TrendsTab.js
-import React, { useState } from 'react';
+import React from 'react';
 import LoadIndicator from './LoadIndicator';
 import TrendChartBlock from './LoadTrendChart';
 import './DashboardTab.css';
 
-const TrendsTab = () => {
-  const [charts, setCharts] = useState([{ id: 1, defaultField: 'Generator_Apparent_Power' }]);
-  const [nextId, setNextId] = useState(2);
+const TrendsTab = ({ charts, setCharts, nextId, setNextId }) => {
 
   const addChart = () => {
-    setCharts([...charts, { id: nextId }]);
+    setCharts([...charts, { 
+      id: nextId, 
+      selectedField: 'Generator_Apparent_Power', 
+      selectedRange: '2h' 
+    }]);
     setNextId(nextId + 1);
+  };
+
+  const updateChart = (chartId, field, range) => {
+    setCharts(charts.map(chart => 
+      chart.id === chartId 
+        ? { ...chart, selectedField: field, selectedRange: range }
+        : chart
+    ));
   };
 
   const removeChart = (id) => {
@@ -24,22 +34,14 @@ const TrendsTab = () => {
 
       <div style={{ marginTop: '40px' }}>
         {charts.map((chart) => (
-          <div
+          <TrendChartBlock
             key={chart.id}
-            style={{
-              marginBottom: '40px',
-              padding: '10px',
-              border: '1px solid #ccc',
-              borderRadius: '8px',
-              background: '#fff',
-            }}
-          >
-            <TrendChartBlock
-              chartId={chart.id}
-              onRemove={() => removeChart(chart.id)}
-              defaultField={chart.defaultField}
-            />
-          </div>
+            chartId={chart.id}
+            selectedField={chart.selectedField}
+            selectedRange={chart.selectedRange}
+            onRemove={() => removeChart(chart.id)}
+            onSettingsChange={(field, range) => updateChart(chart.id, field, range)}
+          />
         ))}
 
         <div style={{ textAlign: 'center', marginTop: '20px' }}>

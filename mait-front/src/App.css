@@ -42,3 +42,9 @@ button {
 .report-box li {
   margin-bottom: 0.4rem;
 }
+
+/* AI Activation Spinner Animation */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

@@ -38,7 +38,7 @@ function DashboardTab() {
 
   const renderSection = (title, metrics) => (
     <>
-      <h3>{title}</h3>
+      <h3 style={{ textAlign: 'center' }}>{title}</h3>
       <div className="metrics-grid">
         {metrics.map((m) => (
           <MetricCard key={m.label} {...m} />
@@ -49,7 +49,6 @@ function DashboardTab() {
 
   return (
     <div className="dashboard-tab">
-      <h2>📟 Live Status</h2>
 
       {renderSection('Core Metrics', [
         { label: 'Engine Speed', value: data['Engine_Speed'], unit: 'RPM' },
@@ -102,4 +101,3 @@ function MetricCard({ label, value, unit }) {
 }
 
 export default DashboardTab;
-

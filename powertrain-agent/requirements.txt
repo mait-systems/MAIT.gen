@@ -1,0 +1,16 @@
+# PowertrainAgent Gateway Edition Requirements
+# Core dependencies for customer deployment
+pandas>=2.0.0
+numpy>=1.24.0
+influxdb-client>=1.36.0
+pyyaml>=6.0
+requests>=2.31.0
+
+# Gateway communication
+httpx>=0.24.0
+
+# Logging and monitoring  
+python-dateutil>=2.8.0
+
+# Development and testing (optional)
+pytest>=7.0.0

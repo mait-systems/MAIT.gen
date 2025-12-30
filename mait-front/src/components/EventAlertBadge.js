@@ -7,7 +7,8 @@ const EventAlertBadge = ({ onClick }) => {
 
   const fetchEvents = async () => {
     try {
-      const res = await axios.get('/api/active-events');
+      const baseUrl = process.env.REACT_APP_API_URL || '';
+      const res = await axios.get(`${baseUrl}/api/active-events`);
       setEventCount(res.data.count || 0);
     } catch (err) {
       console.error('Failed to fetch active event count:', err);

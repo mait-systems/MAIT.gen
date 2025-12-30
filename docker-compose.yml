@@ -2,10 +2,14 @@ version: "3.9"
 
 services:
   influxdb:
-    image: influxdb:2.1.1
+    image: influxdb:2.8.0
     container_name: influxdb
     ports:
       - "8086:8086"
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
     volumes:
       - influxdb_data:/var/lib/influxdb2
       - influxdb_config:/etc/influxdb2
@@ -17,7 +21,7 @@ services:
       - DOCKER_INFLUXDB_INIT_ORG=${INFLUXDB_ORG:-mlr}
       - DOCKER_INFLUXDB_INIT_BUCKET=${INFLUXDB_BUCKET:-stbd_gen}
       - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${INFLUXDB_TOKEN:-your-influxdb-token-here}
-      - DOCKER_INFLUXDB_INIT_RETENTION=1d
+      - DOCKER_INFLUXDB_INIT_RETENTION=0
 
   backend:
     build:
@@ -35,6 +39,7 @@ services:
       - INFLUXDB_BUCKET=${INFLUXDB_BUCKET:-stbd_gen}
     depends_on:
       - influxdb
+    restart: unless-stopped
 
   frontend:
     build:
@@ -45,6 +50,7 @@ services:
       - REACT_APP_API_URL=${REACT_APP_API_URL}
     depends_on:
       - backend
+    restart: unless-stopped
 
   modbus-poller:
     build:
@@ -60,6 +66,32 @@ services:
       - INFLUXDB_BUCKET=${INFLUXDB_BUCKET:-stbd_gen}
     depends_on:
       - influxdb
+    restart: unless-stopped
+
+  powertrain-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile.powertrain
+    volumes:
+      - ./generator_config_gateway.yaml:/app/generator_config_gateway.yaml
+      - ./generator_config.yaml:/app/generator_config.yaml
+      - shared_logs:/app/logs
+    environment:
+      - INFLUXDB_URL=http://influxdb:8086
+      - INFLUXDB_TOKEN=${INFLUXDB_TOKEN:-your-influxdb-token-here}
+      - INFLUXDB_ORG=${INFLUXDB_ORG:-mlr}
+      - INFLUXDB_BUCKET=${INFLUXDB_BUCKET:-stbd_gen}
+      - POWERTRAIN_INTERVAL=${POWERTRAIN_INTERVAL:-5}
+      - POWERTRAIN_BOOTSTRAP=${POWERTRAIN_BOOTSTRAP:-false}
+      - POWERTRAIN_AI_ENABLED=${POWERTRAIN_AI_ENABLED:-false}
+      - POWERTRAIN_IDLE_TIMEOUT=${POWERTRAIN_IDLE_TIMEOUT:-5}
+      - GATEWAY_URL=${GATEWAY_URL}
+      - GATEWAY_API_KEY=${GATEWAY_API_KEY}
+      - BACKEND_URL=http://backend:8001
+    depends_on:
+      - influxdb
+      - modbus-poller
+    restart: unless-stopped
 
 volumes:
   influxdb_data:

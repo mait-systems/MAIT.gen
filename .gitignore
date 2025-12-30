@@ -5,14 +5,19 @@ stbd_gen_output.log
 
 # Environment variables and secrets
 .env
-.env.local
-.env.production
-.env.development
+.env.*
+!.env.example
 
 # Personal configuration files with real secrets
-# (Keep template files, ignore files with real credentials)
 **/generator_config.yaml
-!**/generator_config.yaml.example
+**/generator_config_gateway.yaml
+*.yml
+*.yaml
+!docker-compose.yml
+!*.example.yml
+!*.example.yaml
+**/Dockerfile.dev
+**/Dockerfile*.dev
 
 # Local development environment (private)
 Local code/
@@ -21,11 +26,28 @@ Local code/
 CLAUDE.md
 PROJECT_MEMORY.md
 .claude
+map.md
+codex_memory.md
 
 # Development workflow and sync scripts (private)
 DEVELOPMENT.md
 sync-dev-files.sh
 sync-to-cloud.sh
+CurrentWork.md
+llm_test.sh
+test_memory_manager.py
+dev-terminals.sh
+tmux-startup.sh
+deploy-gateway.sh
+Gateway_droplet_deployment.md
+DEV_SETUP.md
+readme_dev-terminals.sh
+readme_tools.md
+Service Manual.md
+
+# Old implementation backups (private)
+powertrain-agent_old/
+**/memory_manager_old.py
 
 # Node modules
 node_modules/
@@ -85,3 +107,7 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+
+# Additional generator-specific configs and env files
+generator_config_*.yaml
+generator_config_gateway_*.yaml

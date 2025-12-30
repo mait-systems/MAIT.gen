@@ -70,7 +70,7 @@ const LoadIndicator = () => {
   return (
     <div style={{ width: '100%', marginTop: '20px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <ChartBox title="Engine RPM" chartData={chartDataRPM} colorFunc={getColor} yAxisDomain={[0, 2000]} />
+        <ChartBox title="Engine RPM" chartData={chartDataRPM} colorFunc={getRPMColor} yAxisDomain={[0, 2000]} />
         <ChartBox title="Generator Load" chartData={chartDataLoad} colorFunc={getColor} />
         <ChartBox title="Engine Coolant T (°C)" chartData={chartDataCoolant} colorFunc={getCoolantColor} yAxisDomain={[0, 120]} />
       </div>

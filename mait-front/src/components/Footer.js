@@ -14,7 +14,7 @@ function Footer() {
       lineHeight: '1.4'
     }}>
       <div>
-        MAIT v2.1.0 | Copyright © 2025 Yarik Sychov. All rights reserved.
+        MAIT v2.2.0 | Copyright © 2026. All rights reserved.
       </div>
     </div>
   );
