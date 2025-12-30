@@ -68,8 +68,8 @@ MAIT (Modular Analytics & Intelligence Toolkit) is a comprehensive monitoring so
 |-----------|------------|---------|
 | **Data Collector** | Python + pymodbus | Reads Modbus registers, sanitizes data, automatic anomaly detection and correction |
 | **Database** | InfluxDB | Time-series storage for metrics |
-| **Backend API** | FastAPI REST API, InfluxDB integration, data aggregation, local analysis, real-time log streaming |
-| **PowertrainAgent** | Local Statistical analysis, Baseline refresh / rebuild and bootstrap of historical data |
+| **Backend API** | FastAPI REST API | InfluxDB integration, data aggregation, local analysis, real-time log streaming |
+| **PowertrainAgent** | REST API |Local Statistical analysis, Baseline refresh / rebuild and bootstrap of historical data |
 | **Frontend** | React | Live dashboard, reporting interface |
 | **Gateway** | FastAPI | REST API, influx querries, proprietary AI/LLM/memory service, health endpoints for memory, prompt, and server connectivity |
 
@@ -126,7 +126,7 @@ MAIT (Modular Analytics & Intelligence Toolkit) is a comprehensive monitoring so
 
 ## Host Setup
 
-#### Network Interface Setup
+### 1. Network Interface Setup
 Configure Ethernet for generator network via Debian GUI or:
 
 ```bash
@@ -137,7 +137,7 @@ sudo nmcli connection modify "Wired connection 1" \
 ```
 Use 255.255.255.0 as a gateway
 
-# Restart network interface
+#### Restart network interface
 ```bash
 sudo ip link set eth0 down
 sudo ip link set eth0 up
@@ -299,7 +299,7 @@ Edit `.env` file:
 Match your influx configuration from generator_config.yaml. Example:
 ```yaml
 # InfluxDB Configuration (from generator_config.yaml)
-INFLUXDB_TOKEN=ECRbc2byEqKeAMXsgI6YZvMh2g0Dk
+INFLUXDB_TOKEN=ECRbc2byEqKedsfgsgI6YZvMh2g0Dk
 INFLUXDB_ORG=myorg
 INFLUXDB_BUCKET=generator1-metric
 INFLUXDB_ADMIN_USER=admin # Set admin username for Influx
@@ -320,20 +320,20 @@ To use the Remote Prompt Gateway (recommended for AI powered features), connect 
    ```
 2. **Join the MAIT network**:
    ```bash
-   sudo zerotier-cli join 56374ac9a4d129e9
+   sudo zerotier-cli join <our_network_address>
    ```
 3. **Send your node ID** (`zerotier-cli info`) to the support for approval.
 4. **Verify connection** once approved:
    ```bash
    zerotier-cli listnetworks
    ```
-   You should see a managed address (10.243.x.x). **Note this IP address** - you'll need it for the next step.
+   You should see a managed address (10.24x.x.x). **Note this IP address** - you'll need it for the next step.
 5. **Configure for remote gateway access**:
 
    Edit `generator_config_gateway.yaml`:
    ```yaml
    # Gateway configuration
-   gateway_url: "http://10.243.216.95:8083"  # Remote gateway endpoint
+   gateway_url: "http://10.243.212.15:8083"  # Remote gateway endpoint
 
    # InfluxDB configuration - IMPORTANT: Use your ZeroTier IP, not container name!
    influxdb:
@@ -343,7 +343,7 @@ To use the Remote Prompt Gateway (recommended for AI powered features), connect 
      bucket: "your-bucket-name"
    ```
 
-   **Critical**: The `influxdb.url` must use your ZeroTier IP address (e.g., `http://10.243.126.113:8086`), not the Docker container name (`http://influxdb:8086`). The remote gateway needs to access your local InfluxDB from outside your Docker network. Without the correct IP, gateway requests will fail with HTTP 500 errors
+   **Critical**: The `influxdb.url` must use your ZeroTier IP address (e.g., `http://10.243.x.x:8086`), not the Docker container name (`http://influxdb:8086`). The remote gateway needs to access your local InfluxDB from outside your Docker network. Without the correct IP, gateway requests will fail with HTTP 500 errors
 
 ### Assign a Unique `site_id`
 The PowertrainAgent identifies your installation by `site_id`. Pick something descriptive - for example:
