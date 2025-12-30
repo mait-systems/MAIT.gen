@@ -44,6 +44,7 @@ DEV_SETUP.md
 readme_dev-terminals.sh
 readme_tools.md
 Service Manual.md
+public-repo-publish.sh
 
 # Old implementation backups (private)
 powertrain-agent_old/
